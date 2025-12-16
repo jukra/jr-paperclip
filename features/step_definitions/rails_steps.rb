@@ -1,18 +1,24 @@
 Given /^I generate a new rails application$/ do
   steps %{
-    When I successfully run `rails new #{APP_NAME} --skip-bundle`
+    When I successfully run `rails new #{APP_NAME} --skip-bundle --skip-javascript`
     And I cd to "#{APP_NAME}"
   }
 
   FileUtils.chdir("tmp/aruba/testapp/")
 
+  # Remove assets initializer if it exists (causes issues with Rails 8+)
+  FileUtils.rm_f("config/initializers/assets.rb")
+
+  # Determine sqlite3 version based on Rails version
+  sqlite3_version = framework_version.to_f >= 7.2 ? ', "~> 2.0"' : ', "~> 1.4"'
+
   steps %{
     And I turn off class caching
     And I write to "Gemfile" with:
       """
-      source "http://rubygems.org"
+      source "https://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", :platform => [:ruby, :rbx]
+      gem "sqlite3"#{sqlite3_version}, :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
@@ -41,19 +47,23 @@ end
 Given "I allow the attachment to be submitted" do
   cd(".") do
     transform_file("app/controllers/users_controller.rb") do |content|
-      content.gsub("params.require(:user).permit(:name)",
-                   "params.require(:user).permit!")
+      # Handle both Rails 7 style (require/permit) and Rails 8 style (expect)
+      content
+        .gsub("params.require(:user).permit(:name)", "params.require(:user).permit!")
+        .gsub(/params\.expect\(user: \[.*?\]\)/, "params.require(:user).permit!")
     end
   end
 end
 
 Given "I remove turbolinks" do
   cd(".") do
+    # These files may not exist in modern Rails (7+)
     transform_file("app/assets/javascripts/application.js") do |content|
       content.gsub("//= require turbolinks", "")
     end
     transform_file("app/views/layouts/application.html.erb") do |content|
       content.gsub(', "data-turbolinks-track" => true', "")
+        .gsub(", 'data-turbolinks-track': 'reload'", "")
     end
   end
 end
@@ -92,6 +102,7 @@ end
 
 Given "I empty the application.js file" do
   cd(".") do
+    # This file may not exist in modern Rails (7+) with --skip-asset-pipeline
     transform_file("app/assets/javascripts/application.js") do |_content|
       ""
     end
@@ -186,8 +197,11 @@ When /^I turn off class caching$/ do
   cd(".") do
     file = "config/environments/test.rb"
     config = IO.read(file)
+    # Rails 8+ uses enable_reloading instead of cache_classes
     config.gsub!(%r{^\s*config.cache_classes.*$},
                  "config.cache_classes = false")
+    config.gsub!(%r{^\s*config.enable_reloading.*$},
+                 "config.enable_reloading = true")
     File.open(file, "w") { |f| f.write(config) }
   end
 end
