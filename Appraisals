@@ -1,30 +1,29 @@
-appraise "4.2" do
-  gem "sqlite3", "~> 1.3.8", platforms: :ruby
-  gem "rails", "~> 4.2.0"
-end
-
-appraise "5.0" do
-  gem "sqlite3", "~> 1.3.8", platforms: :ruby
-  gem "rails", "~> 5.0.0"
-end
-
-appraise "5.1" do
-  gem "sqlite3", "~> 1.3.8", platforms: :ruby
-  gem "rails", "~> 5.1.0"
-end
-
-appraise "5.2" do
-  gem "sqlite3", "~> 1.3.8", platforms: :ruby
-  gem "rails", "~> 5.2.0"
-end
-
-appraise "6.0" do
+appraise "7.0" do
   gem "sqlite3", "~> 1.4", platforms: :ruby
-  gem "rails", "~> 6.0.0"
+  gem "aruba", "~> 2.0"
+  gem "rails", "~> 7.0.0"
 end
 
-appraise "6.1" do
+appraise "7.1" do
   gem "sqlite3", "~> 1.4", platforms: :ruby
-  gem "aruba", "~> 1.0", ">= 1.0.4"
-  gem "rails", "~> 6.1", ">= 6.1.1"
+  gem "aruba", "~> 2.0"
+  gem "rails", "~> 7.1.0"
+end
+
+appraise "7.2" do
+  gem "sqlite3", "~> 2.0", platforms: :ruby
+  gem "aruba", "~> 2.0"
+  gem "rails", "~> 7.2.0"
+end
+
+appraise "8.0" do
+  gem "sqlite3", "~> 2.0", platforms: :ruby
+  gem "aruba", "~> 2.0"
+  gem "rails", "~> 8.0.0"
+end
+
+appraise "8.1" do
+  gem "sqlite3", "~> 2.0", platforms: :ruby
+  gem "aruba", "~> 2.0"
+  gem "rails", "~> 8.1.0"
 end
