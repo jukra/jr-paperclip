@@ -1,6 +1,17 @@
-[UNRELEASED]
+7.3.0 (2025-12-16)
 
-* Improvement: Support aws-sdk-s3 >= 1.196.1 and multipart file downloads
+* Breaking: Require Ruby >= 3.2.0 and Rails >= 7.0.0
+* Feature: Add support for Rails 7.0, 7.1, 7.2, 8.0, and 8.1
+* Improvement: Support aws-sdk-s3 >= 1.196.1 with TransferManager for multipart uploads/downloads
+* Improvement: Fix S3 TransferManager to use configured client for region and credentials
+* Improvement: Fix fog storage Pathname handling in credentials
+* Improvement: Replace FakeWeb with WebMock for tests
+* Improvement: Replace Travis CI with GitHub Actions
+* Improvement: Fix Rails 8.x compatibility (ActiveSupport::Deprecation, schema migrations)
+* Improvement: Fix MIME::Type deprecation warnings
+* Improvement: Loosen marcel dependency to allow newer versions (>= 1.0.1)
+* Stability: Update RuboCop configuration for latest version
+* Bugfix: Remove BOM character from locale file
 
 7.2.1 (2023-09-09)
 * Improvement: Support file extension names both as symbols and strings for :content_type_mappings
