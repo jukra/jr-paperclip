@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "logger"
+require "active_record"
+require "tempfile"
+require_relative "../lib/paperclip"
+
+require "irb"
+IRB.start
