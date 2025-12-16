@@ -1198,7 +1198,6 @@ describe Paperclip::Attachment do
             small: ["32x32#", :jpg]
           }
           @instance = Dummy.new
-          allow(@instance).to receive(:id).and_return 123
           @file = File.new(fixture_file("5k.png"), "rb")
           @attachment = @instance.avatar
         end
@@ -1216,7 +1215,9 @@ describe Paperclip::Attachment do
 
           context "and saved" do
             before do
-              @attachment.save
+              # Save the model to properly test after_commit callbacks
+              @instance.save!
+              @attachment = @instance.avatar
             end
 
             it "commits the files to disk" do

@@ -1054,6 +1054,19 @@ describe Paperclip::Storage::S3 do
 
       context "and remove, calling S3 Object destroy once per unique style" do
         before do
+          # Create fresh dummy without the new_record? stub from parent context
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+
+          # Mock S3 upload and save
+          if s3_uses_transfer_manager?
+            allow_any_instance_of(Aws::S3::TransferManager).to receive(:upload_file).and_return(true)
+          else
+            allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+          end
+          @dummy.save!
+
+          # Now set up expectations for destroy
           allow_any_instance_of(Aws::S3::Object).to receive(:exists?).and_return(true)
           expect_any_instance_of(Aws::S3::Object).to receive(:delete).once
           @dummy.avatar.clear(:original)

@@ -215,8 +215,10 @@ module Paperclip
         case creds
         when File
           load_credentials_from_file(creds.path)
-        when String, Pathname
-          load_credentials_from_file(creds.path)
+        when Pathname
+          load_credentials_from_file(creds.to_s)
+        when String
+          load_credentials_from_file(creds)
         when Hash
           creds
         else
