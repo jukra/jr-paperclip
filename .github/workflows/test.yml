@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['3.2', '3.3', '3.4']
+        gemfile:
+          - gemfiles/7.0.gemfile
+          - gemfiles/7.1.gemfile
+          - gemfiles/7.2.gemfile
+          - gemfiles/8.0.gemfile
+          - gemfiles/8.1.gemfile
+
+    env:
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ghostscript imagemagick
+          sudo rm -f /etc/ImageMagick-6/policy.xml
+
+      - name: Run tests
+        run: bundle exec rake spec
+
+      - name: Run cucumber
+        run: bundle exec rake cucumber
