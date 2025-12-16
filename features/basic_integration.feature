@@ -33,7 +33,7 @@ Feature: Rails integration
 
   Scenario: Add custom processors
     Given I add a "test" processor in "lib/paperclip"
-    And I add a "cool" processor in "lib/paperclip_processors"
+    And I add a "cool" processor in "lib/paperclip"
     And I attach :attachment with:
       """
       styles: { original: {} }, processors: [:test, :cool]
