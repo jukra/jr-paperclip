@@ -69,8 +69,8 @@ This will run RSpec and Cucumber against all version of Rails
 You need to specify a `BUNDLE_GEMFILE` pointing to the gemfile before running
 the normal test command:
 
-    BUNDLE_GEMFILE=gemfiles/4.1.gemfile rspec spec/paperclip/attachment_spec.rb
-    BUNDLE_GEMFILE=gemfiles/4.1.gemfile cucumber features/basic_integration.feature
+    BUNDLE_GEMFILE=gemfiles/7.1.gemfile rspec spec/paperclip/attachment_spec.rb
+    BUNDLE_GEMFILE=gemfiles/7.1.gemfile cucumber features/basic_integration.feature
 
 Syntax
 ------

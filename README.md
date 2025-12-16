@@ -1,23 +1,27 @@
 Paperclip
 =========
 
+**Revived fork with active maintenance and support for Rails 7.0, 7.1, 8.0, and 8.1 on Ruby 3.2 and newer.**
+
+If you are looking for older versions, please check the [original fork](https://github.com/kreeti/kt-paperclip).
+
+Legacy versions were dropped to reduce maintenance overhead and keep up with updates in the project’s dependencies.
+
+Additional maintainers are very welcome.
+
+---
+
 We plan to support and maintain paperclip, as well as clean it up.
 
 Please feel free to contribute Issues and pull requests.
+
+---
 
 # Existing documentation
 
 ## Documentation valid for `master` branch
 
-Please check the documentation for the paperclip version you are using:
-https://github.com/kreeti/kt-paperclip/releases
-
 ---
-
-[![Build Status](https://travis-ci.com/kreeti/kt-paperclip.svg?branch=master)](https://travis-ci.com/kreeti/kt-paperclip)
-[![Code Climate](https://codeclimate.com/github/kreeti/paperclip.svg)](https://codeclimate.com/github/kreeti/paperclip)
-[![Inline docs](http://inch-ci.org/github/kreeti/paperclip.svg)](http://inch-ci.org/github/kreeti/paperclip)
-[![Security](https://hakiri.io/github/kreeti/paperclip/master.svg)](https://hakiri.io/github/kreeti/paperclip/master)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -78,10 +82,10 @@ packages). Attached files are saved to the filesystem and referenced in the
 browser by an easily understandable specification, which has sensible and
 useful defaults.
 
-See the documentation for `has_attached_file` in [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/kt-paperclip/Paperclip/ClassMethods) for
+See the documentation for `has_attached_file` in [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/jr-paperclip/Paperclip/ClassMethods) for
 more detailed options.
 
-The complete [RDoc](http://www.rubydoc.info/gems/kt-paperclip) is online.
+The complete [RDoc](http://www.rubydoc.info/gems/jr-paperclip) is online.
 
 ---
 
@@ -171,13 +175,13 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "kt-paperclip", "~> 6.4", ">= 6.4.1"
+gem "jr-paperclip", "~> 7.3"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
 ```ruby
-gem "kt-paperclip", git: "git://github.com/kreeti/kt-paperclip.git"
+gem "jr-paperclip", git: "git://github.com/jukra/jr-paperclip.git"
 ```
 
 If you're trying to use features that don't seem to be in the latest released gem, but are
@@ -309,7 +313,7 @@ You'll need to add `<attachment>_content_type` in case you want to use content t
 validation.
 
 More information about the options passed to `has_attached_file` is available in the
-documentation of [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/kt-paperclip/Paperclip/ClassMethods).
+documentation of [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/jr-paperclip/Paperclip/ClassMethods).
 
 Validations
 -----------
@@ -627,7 +631,7 @@ gem 'aws-sdk-s3'
 
 And then you can specify using S3 from `has_attached_file`.
 You can find more information about configuring and using S3 storage in
-[the `Paperclip::Storage::S3` documentation](http://www.rubydoc.info/gems/kt-paperclip/Paperclip/Storage/S3).
+[the `Paperclip::Storage::S3` documentation](http://www.rubydoc.info/gems/jr-paperclip/Paperclip/Storage/S3).
 
 Files on the local filesystem (and in the Rails app's public directory) will be
 available to the internet at large. If you require access control, it's
@@ -710,7 +714,7 @@ Custom Attachment Processors
 You can write your own custom attachment processors to carry out tasks like
 adding watermarks, compressing images, or encrypting files. Custom processors
 must be defined within the `Paperclip` module, inherit from
-`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/kreeti/kt-paperclip/blob/master/lib/paperclip/processor.rb)),
+`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/jukra/jr-paperclip/blob/master/lib/paperclip/processor.rb)),
 and implement a `make` method that returns a `File`. All files in your Rails
 app's `lib/paperclip` and `lib/paperclip_processors` directories will be
 automatically loaded by Paperclip. Processors are specified using the
@@ -742,7 +746,7 @@ recognise, it's expected to ignore it.
 _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
-If you're interested in caching your thumbnail's width, height and size in the
+If you're interested in caching your thumbnail's width, height, and size in the
 database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta)
 gem.
 
@@ -913,7 +917,7 @@ Your::Application.configure do
 end
 ```
 
-More information in the [rdocs](https://www.rubydoc.info/gems/kt-paperclip/Paperclip.options)
+More information in the [rdocs](https://www.rubydoc.info/gems/jr-paperclip/Paperclip.options)
 
 ---
 
@@ -997,7 +1001,7 @@ Testing
 -------
 
 Paperclip provides rspec-compatible matchers for testing attachments. See the
-documentation on [Paperclip::Shoulda::Matchers](http://www.rubydoc.info/gems/kt-paperclip/Paperclip/Shoulda/Matchers)
+documentation on [Paperclip::Shoulda::Matchers](http://www.rubydoc.info/gems/jr-paperclip/Paperclip/Shoulda/Matchers)
 for more information.
 
 **Parallel Tests**
@@ -1057,15 +1061,15 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Post a [pull request](https://github.com/kreeti/kt-paperclip/compare/).
+1. Post a [pull request](https://github.com/jukra/jr-paperclip/compare/).
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please open a
-   [GitHub issue](https://github.com/kreeti/kt-paperclip/issues/new).
+   [GitHub issue](https://github.com/jukra/jr-paperclip/issues/new).
 
 Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for more details on contributing and running test.
 
-Thank you to all [the contributors](https://github.com/kreeti/kt-paperclip/graphs/contributors)!
+Thank you to all [the contributors](https://github.com/jukra/jr-paperclip/graphs/contributors)!
 
 License
 -------

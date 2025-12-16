@@ -31,7 +31,13 @@ Paperclip.options[:logger] = ActiveRecord::Base.logger
 Dir[File.join(ROOT, "spec", "support", "**", "*.rb")].each { |f| require f }
 
 Rails = FakeRails.new("test", Pathname.new(ROOT).join("tmp"))
-ActiveSupport::Deprecation.silenced = true
+
+# Silence deprecation warnings - handle different Rails versions
+if ActiveSupport::Deprecation.respond_to?(:silenced=)
+  ActiveSupport::Deprecation.silenced = true
+elsif defined?(ActiveSupport.deprecator)
+  ActiveSupport.deprecator.behavior = :silence
+end
 
 RSpec.configure do |config|
   config.include Assertions
