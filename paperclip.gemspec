@@ -24,8 +24,8 @@ Gem::Specification.new do |s|
 
   s.add_dependency("activemodel", ">= 7.0.0")
   s.add_dependency("activesupport", ">= 7.0.0")
-  s.add_dependency("mime-types")
   s.add_dependency("marcel", ">= 1.0.1")
+  s.add_dependency("mime-types")
   s.add_dependency("terrapin", ">= 0.6.0", "< 2.0")
 
   s.add_development_dependency("activerecord", ">= 7.0.0")
@@ -41,11 +41,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency("generator_spec")
   s.add_development_dependency("launchy")
   s.add_development_dependency("nokogiri")
+  s.add_development_dependency("ostruct")
   s.add_development_dependency("railties")
   s.add_development_dependency("rake")
   s.add_development_dependency("rspec", "~> 3.0")
   s.add_development_dependency("shoulda")
   s.add_development_dependency("timecop")
   s.add_development_dependency("webmock")
-  s.add_development_dependency("ostruct")
 end
