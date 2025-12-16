@@ -17,14 +17,43 @@ describe Paperclip::Schema do
     end
   end
 
+  # Helper to check datetime column (Rails 7+ uses datetime(6) precision by default)
+  def expect_datetime_column(columns, column_name)
+    datetime_column = columns.find { |col| col[0] == column_name }
+    expect(datetime_column).to be_present
+    expect(datetime_column[1]).to match(/^datetime/)
+  end
+
+  # Helper to enable deprecation warnings for testing
+  def with_deprecation_warnings_enabled
+    if ActiveSupport::Deprecation.respond_to?(:silenced=)
+      old_silenced = ActiveSupport::Deprecation.silenced
+      ActiveSupport::Deprecation.silenced = false
+      yield
+      ActiveSupport::Deprecation.silenced = old_silenced
+    elsif defined?(ActiveSupport.deprecator)
+      old_behavior = ActiveSupport.deprecator.behavior
+      ActiveSupport.deprecator.behavior = :stderr
+      yield
+      ActiveSupport.deprecator.behavior = old_behavior
+    else
+      yield
+    end
+  end
+
   context "within table definition" do
     context "using #has_attached_file" do
-      before do
-        ActiveSupport::Deprecation.silenced = false
-      end
       it "creates attachment columns" do
         ActiveRecord::Migration.create_table :dummies, force: true do |t|
-          ActiveSupport::Deprecation.silence do
+          if ActiveSupport::Deprecation.respond_to?(:silence)
+            ActiveSupport::Deprecation.silence do
+              t.has_attached_file :avatar
+            end
+          elsif defined?(ActiveSupport.deprecator)
+            ActiveSupport.deprecator.silence do
+              t.has_attached_file :avatar
+            end
+          else
             t.has_attached_file :avatar
           end
         end
@@ -34,13 +63,16 @@ describe Paperclip::Schema do
         expect(columns).to include(["avatar_file_name", "varchar"])
         expect(columns).to include(["avatar_content_type", "varchar"])
         expect(columns).to include(["avatar_file_size", "bigint"])
-        expect(columns).to include(["avatar_updated_at", "datetime"])
+        expect_datetime_column(columns, "avatar_updated_at")
       end
 
       it "displays deprecation warning" do
-        ActiveRecord::Migration.create_table :dummies, force: true do |t|
-          assert_deprecated do
-            t.has_attached_file :avatar
+        with_deprecation_warnings_enabled do
+          ActiveRecord::Migration.create_table :dummies, force: true do |t|
+            deprecator = defined?(ActiveSupport.deprecator) ? ActiveSupport.deprecator : ActiveSupport::Deprecation
+            assert_deprecated(nil, deprecator) do
+              t.has_attached_file :avatar
+            end
           end
         end
       end
@@ -59,7 +91,7 @@ describe Paperclip::Schema do
         expect(columns).to include(["avatar_file_name", "varchar"])
         expect(columns).to include(["avatar_content_type", "varchar"])
         expect(columns).to include(["avatar_file_size", "bigint"])
-        expect(columns).to include(["avatar_updated_at", "datetime"])
+        expect_datetime_column(columns, "avatar_updated_at")
       end
     end
 
@@ -98,7 +130,7 @@ describe Paperclip::Schema do
           expect(columns).to include(["avatar_file_name", "varchar"])
           expect(columns).to include(["avatar_content_type", "varchar"])
           expect(columns).to include(["avatar_file_size", "bigint"])
-          expect(columns).to include(["avatar_updated_at", "datetime"])
+          expect_datetime_column(columns, "avatar_updated_at")
         end
       end
 
@@ -128,11 +160,11 @@ describe Paperclip::Schema do
           expect(columns).to include(["avatar_file_name", "varchar"])
           expect(columns).to include(["avatar_content_type", "varchar"])
           expect(columns).to include(["avatar_file_size", "bigint"])
-          expect(columns).to include(["avatar_updated_at", "datetime"])
+          expect_datetime_column(columns, "avatar_updated_at")
           expect(columns).to include(["photo_file_name", "varchar"])
           expect(columns).to include(["photo_content_type", "varchar"])
           expect(columns).to include(["photo_file_size", "bigint"])
-          expect(columns).to include(["photo_updated_at", "datetime"])
+          expect_datetime_column(columns, "photo_updated_at")
         end
       end
 
@@ -173,12 +205,23 @@ describe Paperclip::Schema do
         end
       end
 
+      # Helper to check datetime column is NOT present
+      def expect_no_datetime_column(columns, column_name)
+        datetime_column = columns.find { |col| col[0] == column_name }
+        expect(datetime_column).to be_nil
+      end
+
       context "using #drop_attached_file" do
-        before do
-          ActiveSupport::Deprecation.silenced = false
-        end
         it "removes the attachment columns" do
-          ActiveSupport::Deprecation.silence do
+          if ActiveSupport::Deprecation.respond_to?(:silence)
+            ActiveSupport::Deprecation.silence do
+              ActiveRecord::Migration.drop_attached_file :dummies, :avatar
+            end
+          elsif defined?(ActiveSupport.deprecator)
+            ActiveSupport.deprecator.silence do
+              ActiveRecord::Migration.drop_attached_file :dummies, :avatar
+            end
+          else
             ActiveRecord::Migration.drop_attached_file :dummies, :avatar
           end
 
@@ -187,12 +230,15 @@ describe Paperclip::Schema do
           expect(columns).to_not include(["avatar_file_name", "varchar"])
           expect(columns).to_not include(["avatar_content_type", "varchar"])
           expect(columns).to_not include(["avatar_file_size", "bigint"])
-          expect(columns).to_not include(["avatar_updated_at", "datetime"])
+          expect_no_datetime_column(columns, "avatar_updated_at")
         end
 
         it "displays a deprecation warning" do
-          assert_deprecated do
-            ActiveRecord::Migration.drop_attached_file :dummies, :avatar
+          with_deprecation_warnings_enabled do
+            deprecator = defined?(ActiveSupport.deprecator) ? ActiveSupport.deprecator : ActiveSupport::Deprecation
+            assert_deprecated(nil, deprecator) do
+              ActiveRecord::Migration.drop_attached_file :dummies, :avatar
+            end
           end
         end
       end
@@ -209,7 +255,7 @@ describe Paperclip::Schema do
             expect(columns).to_not include(["avatar_file_name", "varchar"])
             expect(columns).to_not include(["avatar_content_type", "varchar"])
             expect(columns).to_not include(["avatar_file_size", "bigint"])
-            expect(columns).to_not include(["avatar_updated_at", "datetime"])
+            expect_no_datetime_column(columns, "avatar_updated_at")
           end
         end
 
@@ -231,11 +277,11 @@ describe Paperclip::Schema do
             expect(columns).to_not include(["avatar_file_name", "varchar"])
             expect(columns).to_not include(["avatar_content_type", "varchar"])
             expect(columns).to_not include(["avatar_file_size", "bigint"])
-            expect(columns).to_not include(["avatar_updated_at", "datetime"])
+            expect_no_datetime_column(columns, "avatar_updated_at")
             expect(columns).to_not include(["photo_file_name", "varchar"])
             expect(columns).to_not include(["photo_content_type", "varchar"])
             expect(columns).to_not include(["photo_file_size", "bigint"])
-            expect(columns).to_not include(["photo_updated_at", "datetime"])
+            expect_no_datetime_column(columns, "photo_updated_at")
           end
         end
 

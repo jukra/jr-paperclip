@@ -29,7 +29,7 @@ end
 desc "Start an IRB session with all necessary files required."
 task :shell do |_t|
   chdir File.dirname(__FILE__)
-  exec "irb -I lib/ -I lib/paperclip -r rubygems -r active_record -r tempfile -r init"
+  exec "bin/console"
 end
 
 desc "Clean up files."

@@ -76,36 +76,37 @@ Then /^the attachment should have the same file size as the fixture "([^"]*)"$/ 
   end
 end
 
-Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, _not_exist|
+Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, not_exist|
   cd(".") do
-    expect(attachment_path(filename)).not_to be_an_existing_file
+    if not_exist
+      expect(File.exist?(attachment_path(filename))).to be false
+    else
+      expect(File.exist?(attachment_path(filename))).to be true
+    end
   end
 end
 
 Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
     columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.sql_type] }.inspect"`.strip)
-    expect_columns = [
-      ["#{attachment_name}_file_name", "varchar"],
-      ["#{attachment_name}_content_type", "varchar"],
-      ["#{attachment_name}_file_size", "bigint"],
-      ["#{attachment_name}_updated_at", "datetime"]
-    ]
-    expect(columns).to include(*expect_columns)
+    expect(columns).to include(["#{attachment_name}_file_name", "varchar"])
+    expect(columns).to include(["#{attachment_name}_content_type", "varchar"])
+    expect(columns).to include(["#{attachment_name}_file_size", "bigint"])
+    # Rails 7+ uses datetime(6) with precision, so match with regex
+    datetime_column = columns.find { |col| col[0] == "#{attachment_name}_updated_at" }
+    expect(datetime_column).to be_present
+    expect(datetime_column[1]).to match(/^datetime/)
   end
 end
 
 Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
     columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.sql_type] }.inspect"`.strip)
-    expect_columns = [
-      ["#{attachment_name}_file_name", "varchar"],
-      ["#{attachment_name}_content_type", "varchar"],
-      ["#{attachment_name}_file_size", "bigint"],
-      ["#{attachment_name}_updated_at", "datetime"]
-    ]
-
-    expect(columns).not_to include(*expect_columns)
+    column_names = columns.map { |col| col[0] }
+    expect(column_names).not_to include("#{attachment_name}_file_name")
+    expect(column_names).not_to include("#{attachment_name}_content_type")
+    expect(column_names).not_to include("#{attachment_name}_file_size")
+    expect(column_names).not_to include("#{attachment_name}_updated_at")
   end
 end
 

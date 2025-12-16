@@ -1,7 +1,9 @@
-require:
+plugins:
   - rubocop-rails
 
 AllCops:
+  NewCops: disable
+  TargetRubyVersion: 3.2
   Include:
     - "**/*.gemspec"
     - "**/*.podspec"
@@ -21,10 +23,7 @@ AllCops:
   Exclude:
     - "vendor/**/*"
     - "db/schema.rb"
-    - 'vendor/**/*'
     - 'gemfiles/vendor/**/*'
-  DisplayCopNames: false
-  StyleGuideCopsOnly: false
 Naming/AccessorMethodName:
   Description: Check the naming of accessor methods for get_/set_.
   Enabled: false
@@ -59,7 +58,7 @@ Naming/MethodName:
   SupportedStyles:
   - snake_case
   - camelCase
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Description: Check the names of predicate methods.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#bool-methods-qmark
   Enabled: true
@@ -307,7 +306,7 @@ Style/StringLiteralsInInterpolation:
 Style/SymbolProc:
   Description: Use symbols as procs instead of blocks when possible.
   Enabled: true
-  IgnoredMethods:
+  AllowedMethods:
   - respond_to
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: comma
