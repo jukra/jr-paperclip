@@ -6,7 +6,7 @@ Paperclip
 [![Tests](https://github.com/jukra/jr-paperclip/actions/workflows/tests.yml/badge.svg)](https://github.com/jukra/jr-paperclip/actions/workflows/tests.yml)
 [![reviewdog](https://github.com/jukra/jr-paperclip/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/jukra/jr-paperclip/actions/workflows/reviewdog.yml)
 
-**Revived fork with active maintenance and support for Rails 7.0, 7.1, 8.0, and 8.1 on Ruby 3.2 and newer.**
+**Revived fork with active maintenance and support for Rails 7.0, 7.1, 8.0, and 8.1 on Ruby 3.0 and newer.**
 
 If you are looking for older versions, please check the [original fork](https://github.com/kreeti/kt-paperclip).
 
