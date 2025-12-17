@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.post_install_message = File.read("UPGRADING") if File.exist?("UPGRADING")
 
   s.requirements << "ImageMagick"
-  s.required_ruby_version = ">= 3.2.0"
+  s.required_ruby_version = ">= 3.0.0"
 
   s.add_dependency("activemodel", ">= 7.0.0")
   s.add_dependency("activesupport", ">= 7.0.0")
