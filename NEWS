@@ -1,5 +1,7 @@
-7.3.0 (2025-12-16)
+7.3.1 (2025-12-17)
+* Improvement: Relax Ruby requirement to 3.0 and optimize CI matrix
 
+7.3.0 (2025-12-16)
 * Breaking: Require Ruby >= 3.2.0 and Rails >= 7.0.0
 * Feature: Add support for Rails 7.0, 7.1, 7.2, 8.0, and 8.1
 * Improvement: Support aws-sdk-s3 >= 1.196.1 with TransferManager for multipart uploads/downloads
