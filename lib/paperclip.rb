@@ -1,5 +1,5 @@
-# Paperclip allows file attachments that are stored in the filesystem. All graphical
-# transformations are done using the Graphics/ImageMagick command line utilities and
+# Paperclip allows file attachments that are stored in the filesystem. Graphical
+# transformations are done using command line utilities (ImageMagick or libvips) and
 # are stored in Tempfiles until the record is saved. Paperclip does not require a
 # separate model for storing the attachment's information, instead adding a few simple
 # columns to your table.
@@ -77,6 +77,17 @@ module Paperclip
   extend Logger
   extend ProcessorHelpers
 
+  AVAILABLE_BACKENDS = [:image_magick, :vips].freeze
+
+  def self.resolve_backend(backend)
+    backend ||= :image_magick
+    unless AVAILABLE_BACKENDS.include?(backend)
+      log("Warning: Invalid backend: #{backend}. Falling back to :image_magick. Allowed backends: #{AVAILABLE_BACKENDS.join(', ')}")
+      backend = :image_magick
+    end
+    backend
+  end
+
   # Provides configurability to Paperclip. The options available are:
   # * whiny: Will raise an error if Paperclip cannot process thumbnails of
   #   an uploaded image. Defaults to true.
@@ -98,7 +109,8 @@ module Paperclip
       use_exif_orientation: true,
       whiny: true,
       is_windows: Gem.win_platform?,
-      add_validation_errors_to: :both
+      add_validation_errors_to: :both,
+      backend: :image_magick
     }
   end
 
@@ -155,12 +167,17 @@ module Paperclip
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
     #   Defaults to true.
-    # * +convert_options+: When creating thumbnails, use this free-form options
-    #   array to pass in various convert command options.  Typical options are "-strip" to
-    #   remove all Exif data from the image (save space for thumbnails and avatars) or
-    #   "-depth 8" to specify the bit depth of the resulting conversion.  See ImageMagick
-    #   convert documentation for more options: (http://www.imagemagick.org/script/convert.php)
-    #   Note that this option takes a hash of options, each of which correspond to the style
+    # * +backend+: Chooses the image processing backend. Options are :image_magick (default)
+    #   or :vips. The vips backend uses libvips which is significantly faster and uses less
+    #   memory. Can be set globally via Paperclip.options[:backend] or per-attachment.
+    #     has_attached_file :avatar, :styles => { :thumb => "100x100#" }, :backend => :vips
+    # * +convert_options+: Options passed to the image processor when creating thumbnails.
+    #   Works with both ImageMagick and libvips backends. Common cross-platform options:
+    #   "-strip" (remove metadata), "-quality N" (output quality), "-rotate N" (rotation),
+    #   "-flip"/"-flop" (mirror), "-blur 0xN" (gaussian blur), "-sharpen" (sharpen),
+    #   "-colorspace Gray" (grayscale). Some options are ImageMagick-only and will be
+    #   skipped with a warning when using the vips backend.
+    #   This option takes a hash of options, each of which correspond to the style
     #   of thumbnail being generated. You can also specify :all as a key, which will apply
     #   to all of the thumbnails being generated. If you specify options for the :original,
     #   it would be best if you did not specify destructive options, as the intent of keeping

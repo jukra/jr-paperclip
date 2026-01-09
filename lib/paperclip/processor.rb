@@ -36,10 +36,18 @@ module Paperclip
     # The convert method runs the convert binary with the provided arguments.
     # See Paperclip.run for the available options.
     def convert(arguments = "", local_options = {})
+      command =
+        if Paperclip.imagemagick7? # IMv7 on any OS
+          "magick"
+        elsif Paperclip.options[:is_windows] # IMv6 on Windows
+          "magick convert"
+        else
+          "convert"
+        end
       Paperclip.run(
-        Paperclip.options[:is_windows] ? "magick convert" : "convert",
+        command,
         arguments,
-        local_options
+        local_options,
       )
     end
 
@@ -47,10 +55,34 @@ module Paperclip
     # See Paperclip.run for the available options.
     def identify(arguments = "", local_options = {})
       Paperclip.run(
-        Paperclip.options[:is_windows] ? "magick identify" : "identify",
+        (Paperclip.options[:is_windows] || Paperclip.imagemagick7?) ? "magick identify" : "identify",
         arguments,
-        local_options
+        local_options,
       )
+    end
+
+    # Runs libvips command
+    def vips(arguments = "", local_options = {})
+      Paperclip.run("vips", arguments, local_options)
+    end
+
+    # Runs libvips header command
+    def vipsheader(arguments = "", local_options = {})
+      Paperclip.run("vipsheader", arguments, local_options)
+    end
+
+    # Returns a Vips::Image object for the given file path.
+    # This provides access to the full ruby-vips API for image manipulation.
+    # @param file_path [String] Path to the image file
+    # @param options [Hash] Options to pass to Vips::Image.new_from_file
+    # @return [Vips::Image] The loaded image
+    def vips_image(file_path, **options)
+      begin
+        require "vips"
+      rescue LoadError
+        raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips and the vips gem.")
+      end
+      Vips::Image.new_from_file(file_path, **options)
     end
   end
 end

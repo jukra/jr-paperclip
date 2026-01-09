@@ -1,3 +1,16 @@
+8.0.0.beta.1 (2026-01-09)
+
+* Feature: Add libvips backend alongside ImageMagick via the image_processing gem
+* Feature: Per-attachment and per-style backend selection (`:backend` option)
+* Feature: ImageMagick 7 detection (uses `magick` command when available)
+* Feature: Add `ALLOWED_IMAGEMAGICK_OPTIONS` security whitelist (GHSA-r4mg-4433-c7g3)
+* Feature: Cross-platform convert_options support (-strip, -quality, -rotate, etc.)
+* Documentation: Add VIPS_MIGRATION_GUIDE.md with step-by-step migration instructions
+* Documentation: Expand README with backend configuration examples
+* Chores: Add image_processing ~> 1.14 as runtime dependency
+* Chores: CI now installs libvips for testing both backends
+* Tests: Comprehensive test coverage for both backends, geometry modifiers, and convert options
+
 7.3.1 (2025-12-17)
 * Improvement: Relax Ruby requirement to 3.0 and optimize CI matrix
 

@@ -18,12 +18,11 @@ module Paperclip
     class MissingRequiredValidatorError < Paperclip::Error
     end
 
-    # Will be thrown when ImageMagic cannot determine the uploaded file's
-    # metadata, usually this would mean the file is not an image. If you are
-    # consistently receiving this error on PDFs make sure that you have
-    # installed Ghostscript.
-    class NotIdentifiedByImageMagickError < Paperclip::Error
+    # Will be thrown when the backend cannot determine the uploaded file's
+    # metadata, usually this would mean the file is not an image.
+    class NotIdentifiedByBackendError < Paperclip::Error
     end
+    NotIdentifiedByImageMagickError = NotIdentifiedByBackendError
 
     # Will be thrown if the interpolation is creating an infinite loop. If you
     # are creating an interpolator which might cause an infinite loop, you

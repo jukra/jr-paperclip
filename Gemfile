@@ -10,6 +10,7 @@ group :development, :test do
   gem "activerecord-import"
   gem "bootsnap", require: false
   gem "builder"
+  gem "image_processing", "~> 1.14"
   gem "listen"
   gem "rspec"
   gem "rubocop", require: false
