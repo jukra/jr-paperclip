@@ -25,5 +25,29 @@ describe Paperclip::Thumbnail do
       result = thumb.send(:parse_loader_options, options)
       expect(result).to eq({ density: "300", strip: true })
     end
+
+    it "handles single-quoted values correctly" do
+      options = "-comment 'Hello World'"
+      result = thumb.send(:parse_loader_options, options)
+      expect(result).to eq({ comment: "Hello World" })
+    end
+
+    it "handles double-quoted values correctly" do
+      options = '-path "/some/path with spaces"'
+      result = thumb.send(:parse_loader_options, options)
+      expect(result).to eq({ path: "/some/path with spaces" })
+    end
+
+    it "handles escaped spaces correctly" do
+      options = '-label Hello\ World'
+      result = thumb.send(:parse_loader_options, options)
+      expect(result).to eq({ label: "Hello World" })
+    end
+
+    it "handles multiple options with quoted values" do
+      options = "-first 'Value One' -second 'Value Two'"
+      result = thumb.send(:parse_loader_options, options)
+      expect(result).to eq({ first: "Value One", second: "Value Two" })
+    end
   end
 end

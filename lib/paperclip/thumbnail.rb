@@ -1,3 +1,5 @@
+require "shellwords"
+
 module Paperclip
   # Handles thumbnailing images that are uploaded.
   # Now uses the image_processing gem internally, supporting both
@@ -393,7 +395,12 @@ module Paperclip
     def apply_convert_options(pipeline)
       # Parse convert_options into individual tokens
       # Handle both string format "-strip -quality 80" and array format ["-strip", "-quality", "80"]
-      tokens = @convert_options.respond_to?(:split) ? @convert_options.split(/\s+/) : Array(@convert_options)
+      # Use Shellwords to properly handle quoted values like "-annotate 'Hello World'"
+      tokens = if @convert_options.is_a?(String)
+                 Shellwords.shellsplit(@convert_options)
+               else
+                 Array(@convert_options)
+               end
 
       i = 0
       while i < tokens.size
@@ -550,7 +557,12 @@ module Paperclip
       return options if options.is_a?(Hash)
 
       result = {}
-      parts = options.respond_to?(:split) ? options.split(/\s+/) : Array(options)
+      # Use Shellwords to properly handle quoted values
+      parts = if options.is_a?(String)
+                Shellwords.shellsplit(options)
+              else
+                Array(options)
+              end
       i = 0
       while i < parts.size
         part = parts[i]
