@@ -34,7 +34,8 @@ module Paperclip
         validate_media_type:               true,
         adapter_options:                   { hash_digest: Digest::MD5 },
         check_validity_before_processing:  true,
-        return_file_attributes_on_destroy: false
+        return_file_attributes_on_destroy: false,
+        backend:                           Paperclip.options[:backend]
       }
     end
 
@@ -537,7 +538,7 @@ module Paperclip
                                 for(@queued_for_write[name], @options[:adapter_options])
       unadapted_file.close if unadapted_file.respond_to?(:close)
       @queued_for_write[name]
-    rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
+    rescue Paperclip::Errors::NotIdentifiedByBackendError => e
       log("An error was received while processing: #{e.inspect}")
       (@errors[:processing] ||= []) << e.message if @options[:whiny]
     ensure
