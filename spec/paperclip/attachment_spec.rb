@@ -670,7 +670,7 @@ describe Paperclip::Attachment do
     context "when error is meaningful for the end user" do
       before do
         expect(Paperclip::Thumbnail).to receive(:make).and_raise(
-          Paperclip::Errors::NotIdentifiedByImageMagickError,
+          Paperclip::Errors::NotIdentifiedByBackendError,
           "cannot be processed."
         )
       end
