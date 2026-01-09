@@ -83,3 +83,30 @@ Feature: Rails integration
     Then I should see "Name: something"
     And I should see an image with a path of "//s3.amazonaws.com/paperclip/attachments/original/5k.png"
     And the file at "//s3.amazonaws.com/paperclip/attachments/original/5k.png" should be uploaded to S3
+
+  Scenario: libvips integration test
+    Given I add this snippet to config/application.rb:
+      """
+      config.paperclip_defaults = {
+        :backend => :vips
+      }
+      """
+    And I attach :attachment with:
+      """
+      url: "/system/:attachment/:style/:filename",
+      styles: { thumb: "100x100#" }
+      """
+    And I start the rails application
+    And I overwrite "app/views/users/show.html.erb" with:
+      """
+      <p>Name: <%= @user.name %></p>
+      <p>Original: <%= image_tag @user.attachment.url(:original) %></p>
+      <p>Thumb: <%= image_tag @user.attachment.url(:thumb) %></p>
+      """
+    When I go to the new user page
+    And I fill in "Name" with "vips user"
+    And I attach the file "spec/support/fixtures/5k.png" to "Attachment"
+    And I press "Submit"
+    Then I should see "Name: vips user"
+    And the file at "/system/attachments/original/5k.png" should have dimensions "434x66"
+    And the file at "/system/attachments/thumb/5k.png" should have dimensions "100x100"
