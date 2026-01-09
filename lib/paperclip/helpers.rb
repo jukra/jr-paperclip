@@ -56,5 +56,23 @@ module Paperclip
     def reset_duplicate_clash_check!
       @names_url = nil
     end
+
+    def imagemagick7?
+      return @imagemagick7 if instance_variable_defined?(:@imagemagick7)
+
+      @imagemagick7 = !!which("magick")
+    end
+
+    # https://github.com/minimagick/minimagick/blob/master/lib/mini_magick/utilities.rb#L9-L24
+    def which(cmd)
+      exts = ENV["PATHEXT"] ? ENV["PATHEXT"].split(";") : [""]
+      (ENV["PATH"] || "").split(File::PATH_SEPARATOR).each do |path|
+        exts.each do |ext|
+          exe = File.join(path, "#{cmd}#{ext}")
+          return exe if File.executable? exe
+        end
+      end
+      nil
+    end
   end
 end
