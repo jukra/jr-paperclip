@@ -29,8 +29,8 @@ describe Paperclip::MyVipsProcessor do
 
     # Check width using vipsheader
     require "shellwords"
-    width = `vipsheader -f width #{Shellwords.escape(subject.path)}`.strip.to_i
-    expect(width).to eq(100)
+    dimensions = `identify -format "%wx%h" "#{Shellwords.escape(subject.path)}"`.strip
+    expect(dimensions).to eq("100x100")
   end
 
   it "calls the vips command" do
