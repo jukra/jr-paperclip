@@ -11,8 +11,8 @@ describe Paperclip::Thumbnail do
 
     it "correctly applies options starting with +" do
       # The user's specific options - with Shellwords, quoted values are parsed correctly
-      convert_options = '-coalesce +profile "!icc,*" +set date:modify +set date:create +set date:timestamp'
-
+      convert_options = '-coalesce -quality 90 +profile "!icc,*" +set date:modify ' \
+                        "+set date:create +set date:timestamp -define jpeg:dct-method=float"
       thumb = Paperclip::Thumbnail.new(@file, {
                                          geometry: "100x100",
                                          convert_options: convert_options,
@@ -20,15 +20,17 @@ describe Paperclip::Thumbnail do
                                        }, @attachment)
 
       # Spy on the pipeline to verify the correct methods/arguments are called on it.
-      allow(thumb).to receive(:apply_single_option).and_call_original
+      allow(thumb).to receive(:apply_imagemagick_option).and_call_original
       expect { thumb.make }.not_to raise_error
 
       # With Shellwords parsing, the outer quotes are stripped from "!icc,*" -> !icc,*
-      expect(thumb).to have_received(:apply_single_option).with(anything, "coalesce", nil, "-")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "profile", "!icc,*", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:modify", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:create", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:timestamp", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "coalesce", nil, "-")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "quality", "90", "-")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "profile", "!icc,*", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:modify", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:create", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:timestamp", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "define", "jpeg:dct-method=float", "-")
     end
   end
 

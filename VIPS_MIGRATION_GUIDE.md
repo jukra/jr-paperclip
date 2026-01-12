@@ -73,7 +73,7 @@ has_attached_file :avatar,
 
 ### ImageMagick-Only Options
 
-The following options only work with ImageMagick. When used with the vips backend, they will be skipped and a warning will be logged:
+For example the following options only work with ImageMagick. When used with the vips backend, they will be skipped and a warning will be logged:
 
 `-density`, `-depth`, `-gravity`, `-crop`, `-extent`, `-alpha`, `-background`, `-type`, `-posterize`, `-dither`, `-colors`, `-channel`, `-transpose`, `-transverse`, `-normalize`, `-equalize`, `-trim`, `-monochrome`
 
@@ -89,6 +89,9 @@ However, if you want to migrate a custom processor to libvips, you can now use t
 module Paperclip
   class MyVipsProcessor < Processor
     def make
+      basename = File.basename(file.path, File.extname(file.path))
+      dst = Paperclip::TempfileFactory.new.generate("#{basename}.png")
+
       # Use the new vips helper instead of convert
       vips("thumbnail :src :dst 100",
            src: File.expand_path(file.path),
