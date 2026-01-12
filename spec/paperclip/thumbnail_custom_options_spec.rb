@@ -11,8 +11,8 @@ describe Paperclip::Thumbnail do
 
     it "correctly applies options starting with +" do
       # The user's specific options - with Shellwords, quoted values are parsed correctly
-      convert_options = '-coalesce +profile "!icc,*" +set date:modify +set date:create +set date:timestamp'
-
+      convert_options = '-coalesce -quality 90 +profile "!icc,*" +set date:modify ' \
+                        "+set date:create +set date:timestamp -define jpeg:dct-method=float"
       thumb = Paperclip::Thumbnail.new(@file, {
                                          geometry: "100x100",
                                          convert_options: convert_options,
@@ -20,15 +20,17 @@ describe Paperclip::Thumbnail do
                                        }, @attachment)
 
       # Spy on the pipeline to verify the correct methods/arguments are called on it.
-      allow(thumb).to receive(:apply_single_option).and_call_original
+      allow(thumb).to receive(:apply_imagemagick_option).and_call_original
       expect { thumb.make }.not_to raise_error
 
       # With Shellwords parsing, the outer quotes are stripped from "!icc,*" -> !icc,*
-      expect(thumb).to have_received(:apply_single_option).with(anything, "coalesce", nil, "-")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "profile", "!icc,*", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:modify", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:create", "+")
-      expect(thumb).to have_received(:apply_single_option).with(anything, "set", "date:timestamp", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "coalesce", nil, "-")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "quality", "90", "-")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "profile", "!icc,*", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:modify", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:create", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "set", "date:timestamp", "+")
+      expect(thumb).to have_received(:apply_imagemagick_option).with(anything, "define", "jpeg:dct-method=float", "-")
     end
   end
 
@@ -168,6 +170,56 @@ describe Paperclip::Thumbnail do
       output = `identify -verbose #{Shellwords.escape(result.path)}`
       expect(output).to include("first_prop: First Value")
       expect(output).to include("second_prop: Second Value")
+    end
+  end
+
+  context "with vips-specific convert_options" do
+    before do
+      begin
+        require "vips"
+      rescue LoadError
+        skip "libvips not installed"
+      end
+      @file = File.new(fixture_file("5k.png"), "rb")
+      @attachment = double("Attachment", options: {})
+    end
+
+    after { @file.close if @file && !@file.closed? }
+
+    it "processes vips-native options correctly" do
+      convert_options = "-rot90"
+      file = File.new(fixture_file("rotated.jpg"), "rb")
+
+      thumb = Paperclip::Thumbnail.new(file, {
+                                         geometry: "100x100",
+                                         convert_options: convert_options,
+                                         backend: :vips,
+                                       }, @attachment)
+
+      # Processes without error
+      result = nil
+      expect { result = thumb.make }.not_to raise_error
+
+      require "shellwords"
+      dimensions = `identify -format "%wx%h" "#{Shellwords.escape(result.path)}"`.strip
+      width, height = dimensions.split("x").map(&:to_i)
+      # After 90 degree rotate, width should be greater than height
+      expect(width).to be > height
+      file.close
+    end
+
+    it "logs warning for unsupported vips options" do
+      convert_options = "-coalesce -unknown_vips_option foo"
+
+      thumb = Paperclip::Thumbnail.new(@file, {
+                                         geometry: "100x100",
+                                         convert_options: convert_options,
+                                         backend: :vips,
+                                       }, @attachment)
+
+      expect(Paperclip).to receive(:log).with(/Warning.*coalesce.*not supported/)
+      expect(Paperclip).to receive(:log).with(/Warning.*unknown_vips_option.*not supported/)
+      expect { thumb.make }.not_to raise_error
     end
   end
 end

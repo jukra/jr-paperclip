@@ -476,30 +476,51 @@ module Paperclip
         pipeline.custom(&:flipver)
       when "flop"
         pipeline.custom(&:fliphor)
-      when "blur"
+      when "blur", "gaussian_blur", "gaussblur"
         # Vips uses gaussblur with sigma parameter
         # ImageMagick blur is "radiusxsigma", extract sigma
         sigma = extract_blur_sigma(value)
-        sigma ? pipeline.custom { |img| img.gaussblur(sigma) } : pipeline
-      when "gaussian_blur"
-        sigma = extract_blur_sigma(value)
-        sigma ? pipeline.custom { |img| img.gaussblur(sigma) } : pipeline
+        sigma ? pipeline.gaussblur(sigma) : pipeline
       when "sharpen"
         # Vips sharpen has different parameters than ImageMagick
         # Use sensible defaults for unsharp masking
         pipeline.custom(&:sharpen)
-      when "colorspace"
+      when "colorspace", "colourspace"
         # Vips uses British spelling "colourspace"
-        value ? pipeline.custom { |img| img.colourspace(vips_colorspace(value)) } : pipeline
+        value ? pipeline.colourspace(vips_colorspace(value)) : pipeline
+      when "gamma"
+        # Vips gamma uses keyword argument
+        value ? pipeline.custom { |img| img.gamma(exponent: value.to_f) } : pipeline
       when "flatten"
         pipeline.custom { |img| img.flatten(background: [255, 255, 255]) }
       when "negate", "invert"
         pipeline.custom(&:invert)
-      when "auto_orient"
+      when "auto_orient", "autorot"
         pipeline.autorot
       when "interlace"
         # Vips handles interlacing via saver options
         pipeline.saver(interlace: true)
+      # Vips-native options (direct vips method names)
+      when "median"
+        value ? pipeline.median(value.to_i) : pipeline
+      when "rot90"
+        pipeline.rot90
+      when "rot180"
+        pipeline.rot180
+      when "rot270"
+        pipeline.rot270
+      when "similarity"
+        # similarity for arbitrary rotation/scale
+        value ? pipeline.custom { |img| img.similarity(angle: value.to_f) } : pipeline
+      # Edge detection filters (no arguments)
+      when "canny"
+        pipeline.canny
+      when "sobel"
+        pipeline.sobel
+      when "prewitt"
+        pipeline.custom(&:prewitt)
+      when "scharr"
+        pipeline.custom(&:scharr)
       else
         # Unknown option - log warning for vips
         Paperclip.log("Warning: -#{opt_name} is not supported with vips backend, skipping")

@@ -71,20 +71,20 @@ describe Paperclip::Thumbnail do
 
         # Process with vips backend
         vips_processor = described_class.new(@file, {
-          geometry: "50x50#",
-          backend: :vips,
-          style: :vips_thumb
-        }, attachment)
+                                               geometry: "50x50#",
+                                               backend: :vips,
+                                               style: :vips_thumb,
+                                             }, attachment)
         vips_result = vips_processor.make
 
         @file.rewind
 
         # Process with image_magick backend
         magick_processor = described_class.new(@file, {
-          geometry: "50x50#",
-          backend: :image_magick,
-          style: :magick_thumb
-        }, attachment)
+                                                 geometry: "50x50#",
+                                                 backend: :image_magick,
+                                                 style: :magick_thumb,
+                                               }, attachment)
         magick_result = magick_processor.make
 
         # Both should produce valid 50x50 images
@@ -108,20 +108,20 @@ describe Paperclip::Thumbnail do
 
         # Large preview with vips (faster for large images)
         vips_processor = described_class.new(@file, {
-          geometry: "200x200>",
-          backend: :vips,
-          style: :preview
-        }, attachment)
+                                               geometry: "200x200>",
+                                               backend: :vips,
+                                               style: :preview,
+                                             }, attachment)
         vips_result = vips_processor.make
 
         @file.rewind
 
         # Small thumbnail with image_magick
         magick_processor = described_class.new(@file, {
-          geometry: "32x32#",
-          backend: :image_magick,
-          style: :icon
-        }, attachment)
+                                                 geometry: "32x32#",
+                                                 backend: :image_magick,
+                                                 style: :icon,
+                                               }, attachment)
         magick_result = magick_processor.make
 
         # Verify dimensions
@@ -186,11 +186,9 @@ describe Paperclip::Thumbnail do
 
       context "with vips backend" do
         before do
-          begin
-            require "vips"
-          rescue LoadError
-            skip "libvips not installed"
-          end
+          require "vips"
+        rescue LoadError
+          skip "libvips not installed"
         end
 
         it "resizes image to specified dimensions" do
@@ -216,7 +214,7 @@ describe Paperclip::Thumbnail do
           # Verify it detects logical dimensions (rotated from 300x200 to 200x300)
           expect(processor.current_geometry.width).to eq(200)
           result = processor.make
-        
+
           cmd = %[identify -format "%wx%h" "#{result.path}"]
           # Original 300x200 with orientation 6 (90 deg CW).
           # Post autorot: 200x300.
@@ -225,7 +223,8 @@ describe Paperclip::Thumbnail do
         end
 
         it "strips metadata when requested via convert_options" do
-          processor = described_class.new(@file, { geometry: "50x50", convert_options: "-strip", backend: :vips }, attachment)
+          processor = described_class.new(@file, { geometry: "50x50", convert_options: "-strip", backend: :vips },
+                                          attachment)
           result = processor.make
 
           # identify -verbose shows less output when stripped
@@ -407,10 +406,10 @@ describe Paperclip::Thumbnail do
           # -strip is cross-platform, should work without warning
           expect(Paperclip).not_to receive(:log).with(/Warning/)
           processor = described_class.new(@file, {
-            geometry: "50x50",
-            backend: :vips,
-            convert_options: "-strip",
-          }, attachment)
+                                            geometry: "50x50",
+                                            backend: :vips,
+                                            convert_options: "-strip",
+                                          }, attachment)
           processor.make
         end
 
@@ -424,10 +423,10 @@ describe Paperclip::Thumbnail do
           # -density is ImageMagick-only, should warn
           expect(Paperclip).to receive(:log).with(/Warning.*density.*not supported.*vips/)
           processor = described_class.new(@file, {
-            geometry: "50x50",
-            backend: :vips,
-            convert_options: "-density 150",
-          }, attachment)
+                                            geometry: "50x50",
+                                            backend: :vips,
+                                            convert_options: "-density 150",
+                                          }, attachment)
           processor.make
         end
       end
@@ -439,10 +438,10 @@ describe Paperclip::Thumbnail do
       # Helper to create a thumbnail with specific convert_options
       def make_thumb_with_options(file, options_string)
         thumb = Paperclip::Thumbnail.new(file, {
-          geometry: "100x100",
-          convert_options: options_string,
-          backend: :image_magick,
-        }, attachment)
+                                           geometry: "100x100",
+                                           convert_options: options_string,
+                                           backend: :image_magick,
+                                         }, attachment)
         thumb.make
       end
 
@@ -576,11 +575,11 @@ describe Paperclip::Thumbnail do
           # Use JPEG to test interlacing (PNG reports format name instead)
           file = File.new(fixture_file("rotated.jpg"), "rb")
           thumb = Paperclip::Thumbnail.new(file, {
-            geometry: "100x100",
-            convert_options: "-interlace Plane",
-            backend: :image_magick,
-            format: :jpg,
-          }, attachment)
+                                             geometry: "100x100",
+                                             convert_options: "-interlace Plane",
+                                             backend: :image_magick,
+                                             format: :jpg,
+                                           }, attachment)
           result = thumb.make
 
           interlace = `identify -format "%[interlace]" "#{result.path}"`.strip
@@ -602,10 +601,10 @@ describe Paperclip::Thumbnail do
           # Use a square image for predictable crop results
           file = File.new(fixture_file("50x50.png"), "rb")
           thumb = Paperclip::Thumbnail.new(file, {
-            geometry: "50x50",  # Keep original size
-            convert_options: "-crop 25x25+0+0 +repage",
-            backend: :image_magick,
-          }, attachment)
+                                             geometry: "50x50", # Keep original size
+                                             convert_options: "-crop 25x25+0+0 +repage",
+                                             backend: :image_magick,
+                                           }, attachment)
           result = thumb.make
 
           dimensions = `identify -format "%wx%h" "#{result.path}"`.strip
@@ -759,11 +758,9 @@ describe Paperclip::Thumbnail do
       let(:attachment) { double("Attachment", options: {}) }
 
       before do
-        begin
-          require "vips"
-        rescue LoadError
-          skip "libvips not installed"
-        end
+        require "vips"
+      rescue LoadError
+        skip "libvips not installed"
       end
 
       # Helper to create a thumbnail with vips backend and specific convert_options
@@ -1211,8 +1208,11 @@ describe Paperclip::Thumbnail do
           end
 
           def width; 100; end
+
           def height; 100; end
+
           def modifier; nil; end
+
           def auto_orient; end
         end
 
@@ -1237,7 +1237,9 @@ describe Paperclip::Thumbnail do
           end
 
           def width; 151; end
+
           def height; 167; end
+
           def modifier; nil; end
         end
 
@@ -1403,7 +1405,7 @@ describe Paperclip::Thumbnail do
           @file,
           geometry: "50x50",
           frame_index: 5,
-          format: :jpg
+          format: :jpg,
         )
       end
 
@@ -1415,11 +1417,9 @@ describe Paperclip::Thumbnail do
 
     context "with vips backend" do
       before do
-        begin
-          require "vips"
-        rescue LoadError
-          skip "libvips not installed"
-        end
+        require "vips"
+      rescue LoadError
+        skip "libvips not installed"
       end
 
       it "preserves animation when output is GIF" do
@@ -1431,7 +1431,8 @@ describe Paperclip::Thumbnail do
       end
 
       it "collapses animation when animated: false is set" do
-        processor = Paperclip::Thumbnail.new(@file, { geometry: "50x50", format: :gif, animated: false, backend: :vips })
+        processor = Paperclip::Thumbnail.new(@file,
+                                             { geometry: "50x50", format: :gif, animated: false, backend: :vips })
         dst = processor.make
         cmd = %[identify -format "%wx%h," "#{dst.path}"]
         frames = `#{cmd}`.chomp.split(",").reject(&:empty?)
