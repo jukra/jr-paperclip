@@ -734,12 +734,14 @@ has_attached_file :image, styles: { regular: ['800x800>', :png]},
     convert_options: { regular: "-posterize 3"}
 ```
 
-Since Paperclip now delegates to the `image_processing` gem, you should refer to its documentation for available methods/operations for your chosen backend:
+Paperclip delegates to the `image_processing` gem, but **whitelists supported options** for security. For ImageMagick, most standard options are supported. For libvips, a curated set of common options is available (see table below) and `Paperclip::Thumbnail` class. Unsupported options are logged as warnings and skipped.
+
+For full backend capabilities, refer to the image_processing documentation:
 
 *   **ImageMagick:** [ImageProcessing::MiniMagick documentation](https://github.com/janko/image_processing/blob/master/doc/minimagick.md)
 *   **libvips:** [ImageProcessing::Vips documentation](https://github.com/janko/image_processing/blob/master/doc/vips.md)
 
-Common options like `-strip`, `-quality`, `-rotate`, `-blur` are supported on both backends, but backend-specific options (like `-density` for ImageMagick) might not be available or behave differently on libvips.
+Common options like `-strip`, `-quality`, `-rotate`, `-blur` are supported on both backends. Backend-specific options (like `-density` for ImageMagick) may not be available on libvips.
 
 ### Cross-Platform Convert Options
 
@@ -757,6 +759,7 @@ Many common `convert_options` now work with **both** ImageMagick and libvips bac
 | `-colorspace X` | Color space (Gray, sRGB, CMYK) | `convert_options: "-colorspace Gray"` |
 | `-negate` | Invert colors | `convert_options: "-negate"` |
 | `-flatten` | Flatten transparency | `convert_options: "-flatten"` |
+| `-gamma N` | Adjust image gamma | `convert_options: "-gamma 1.5"` |
 | `-auto-orient` | Auto-rotate via EXIF | `convert_options: "-auto-orient"` |
 | `-interlace X` | Progressive output | `convert_options: "-interlace Plane"` |
 
