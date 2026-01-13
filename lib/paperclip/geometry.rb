@@ -21,8 +21,8 @@ module Paperclip
     end
 
     # Extracts the Geometry from a file (or path to a file)
-    def self.from_file(file)
-      GeometryDetector.new(file).make
+    def self.from_file(file, backend = nil)
+      GeometryDetector.new(file, backend: backend).make
     end
 
     # Extracts the Geometry from a "WxH,O" string
@@ -84,7 +84,7 @@ module Paperclip
       to_s
     end
 
-    # Returns the scaling and cropping geometries (in string-based ImageMagick format)
+    # Returns the scaling and cropping geometries (in string format)
     # neccessary to transform this Geometry into the Geometry given. If crop is true,
     # then it is assumed the destination Geometry will be the exact final resolution.
     # In this case, the source Geometry is scaled so that an image containing the

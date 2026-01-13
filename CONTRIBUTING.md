@@ -13,7 +13,7 @@ Here's a quick guide for contributing:
 1. Make sure you have ImageMagick and Ghostscript installed. See [this section](./README.md#image-processor) of the README.
 
 1. Run the tests. We only take pull requests with passing tests, and it's great
-to know that you have a clean slate: `bundle && bundle exec rake`
+to know that you have a clean slate: `bundle && bundle exec appraisal rake`
 
 1. Add a test for your change. Only refactoring and documentation changes
 require no new tests. If you are adding functionality or fixing a bug, we need

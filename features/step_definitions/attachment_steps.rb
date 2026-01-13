@@ -86,6 +86,23 @@ Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, not_exi
   end
 end
 
+Then /^the file at "([^"]*)" should have dimensions "([^"]*)"$/ do |web_path, dimension|
+  cd(".") do
+    local_path = "public#{web_path}"
+    # Try identify first, then vipsheader
+    require "shellwords"
+    escaped_path = Shellwords.escape(local_path)
+    geometry = `identify -format "%wx%h" #{escaped_path} 2>/dev/null`.strip
+    if geometry.empty?
+      width = `vipsheader -f width #{escaped_path} 2>/dev/null`.strip
+      height = `vipsheader -f height #{escaped_path} 2>/dev/null`.strip
+      geometry = "#{width}x#{height}"
+    end
+    raise "Could not determine dimensions for #{local_path}" if geometry == "x" || geometry.empty?
+    expect(geometry).to eq(dimension)
+  end
+end
+
 Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
     columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.sql_type] }.inspect"`.strip)

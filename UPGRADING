@@ -1,0 +1,5 @@
+jr-paperclip – HEADS UP (major changes)
+
+This version adds libvips support as a high-performance alternative to ImageMagick.
+It also introduces ImageMagick 7 compatibility and updates geometry detection behavior.
+For migration instructions and details, see README.md and VIPS_MIGRATION_GUIDE.md.

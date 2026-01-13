@@ -149,7 +149,7 @@ describe Paperclip::Geometry do
       file = "/home/This File Does Not Exist.omg"
       expect do
         @geo = Paperclip::Geometry.from_file(file)
-      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError,
                          "Could not identify image size")
     end
 
@@ -157,7 +157,7 @@ describe Paperclip::Geometry do
       file = ""
       expect do
         @geo = Paperclip::Geometry.from_file(file)
-      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError,
                          "Cannot find the geometry of a file with a blank name")
     end
 
@@ -165,7 +165,7 @@ describe Paperclip::Geometry do
       file = nil
       expect do
         @geo = Paperclip::Geometry.from_file(file)
-      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError,
                          "Cannot find the geometry of a file with a blank name")
     end
 
@@ -174,13 +174,15 @@ describe Paperclip::Geometry do
       allow(file).to receive(:respond_to?).with(:path).and_return(true)
       expect do
         @geo = Paperclip::Geometry.from_file(file)
-      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError,
                          "Cannot find the geometry of a file with a blank name")
     end
 
-    it "lets us know when a command isn't found versus a processing error" do
+    it "lets us know when a command isn't found versus a processing error when using imagemagick" do
       old_path = ENV["PATH"]
+      old_backend = Paperclip.options[:backend]
       begin
+        Paperclip.options[:backend] = :image_magick
         ENV["PATH"] = ""
         assert_raises(Paperclip::Errors::CommandNotFoundError) do
           file = fixture_file("5k.png")
@@ -188,6 +190,7 @@ describe Paperclip::Geometry do
         end
       ensure
         ENV["PATH"] = old_path
+        Paperclip.options[:backend] = old_backend
       end
     end
 

@@ -212,6 +212,64 @@ describe Paperclip::Style do
     end
   end
 
+  context "A style rule with per-style backend selection" do
+    before do
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {
+                                 vips_style: {
+                                   geometry: "800x800>",
+                                   backend: :vips
+                                 },
+                                 magick_style: {
+                                   geometry: "100x100#",
+                                   backend: :image_magick
+                                 },
+                                 default_style: {
+                                   geometry: "200x200"
+                                 }
+                               }
+    end
+
+    it "passes backend option through to processor_options for vips style" do
+      assert_equal :vips, @attachment.styles[:vips_style].processor_options[:backend]
+    end
+
+    it "passes backend option through to processor_options for image_magick style" do
+      assert_equal :image_magick, @attachment.styles[:magick_style].processor_options[:backend]
+    end
+
+    it "does not include backend in processor_options when not specified" do
+      expect(@attachment.styles[:default_style].processor_options).not_to have_key(:backend)
+    end
+
+    it "includes geometry correctly for each style" do
+      assert_equal "800x800>", @attachment.styles[:vips_style].geometry
+      assert_equal "100x100#", @attachment.styles[:magick_style].geometry
+      assert_equal "200x200", @attachment.styles[:default_style].geometry
+    end
+
+    it "allows accessing backend via hash notation" do
+      assert_equal :vips, @attachment.styles[:vips_style][:backend]
+      assert_equal :image_magick, @attachment.styles[:magick_style][:backend]
+    end
+  end
+
+  context "A style rule with backend as a proc" do
+    before do
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {
+                                 dynamic_backend: {
+                                   geometry: "500x500",
+                                   backend: lambda { |_a| :vips }
+                                 }
+                               }
+    end
+
+    it "evaluates proc when processor_options are requested" do
+      assert_equal :vips, @attachment.styles[:dynamic_backend].processor_options[:backend]
+    end
+  end
+
   context "A style rule supplied with default format" do
     before do
       @attachment = attachment default_format: :png,
