@@ -51,20 +51,22 @@ Good news! Many common `convert_options` now work with **both** ImageMagick and 
 
 ### Options That Work on Both Backends
 
-| Option | Description |
-|--------|-------------|
-| `-strip` | Remove metadata/EXIF data |
-| `-quality N` | Output quality (1-100) |
-| `-rotate N` | Rotate by degrees |
-| `-flip` | Vertical flip |
-| `-flop` | Horizontal flip |
-| `-blur 0xN` | Gaussian blur |
-| `-sharpen 0xN` | Sharpen image |
-| `-colorspace X` | Color space (Gray, sRGB, CMYK) |
-| `-negate` | Invert colors |
-| `-flatten` | Flatten transparency |
-| `-auto-orient` | Auto-rotate via EXIF |
-| `-interlace X` | Progressive/interlaced output |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `-strip` | Remove metadata/EXIF | `convert_options: "-strip"` |
+| `-quality N` | Output quality (1-100) | `convert_options: "-quality 80"` |
+| `-rotate N` | Rotate by degrees | `convert_options: "-rotate 90"` |
+| `-flip` | Vertical flip | `convert_options: "-flip"` |
+| `-flop` | Horizontal flip | `convert_options: "-flop"` |
+| `-blur 0xN` | Gaussian blur | `convert_options: "-blur 0x2"` |
+| `-sharpen 0xN` | Sharpen image | `convert_options: "-sharpen 0x1"` |
+| `-colorspace X` | Color space (Gray, sRGB, CMYK) | `convert_options: "-colorspace Gray"` |
+| `-negate` | Invert colors | `convert_options: "-negate"` |
+| `-flatten` | Flatten transparency | `convert_options: "-flatten"` |
+| `-gamma N` | Adjust image gamma | `convert_options: "-gamma 1.5"` |
+| `-auto-orient` | Auto-rotate via EXIF | `convert_options: "-auto-orient"` |
+| `-interlace X` | Progressive output | `convert_options: "-interlace Plane"` |
+
 
 **Example:**
 ```ruby
