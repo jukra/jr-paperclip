@@ -80,7 +80,7 @@ module Paperclip
       begin
         require "vips"
       rescue LoadError
-        raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips and the vips gem.")
+        raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips.")
       end
       Vips::Image.new_from_file(file_path, **options)
     end
