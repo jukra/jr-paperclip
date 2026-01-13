@@ -14,19 +14,16 @@ Legacy versions were dropped to reduce maintenance overhead and keep up with upd
 
 Additional maintainers are very welcome.
 
----
+## Version 8.0.0 brings major new features and improvements:
 
-We plan to support and maintain paperclip, as well as clean it up.
+* Support for libvips backend alongside ImageMagick via the image_processing gem
+* ImageMagick 7 support (uses `magick` command when available)
+* Added `ALLOWED_IMAGEMAGICK_OPTIONS` security whitelist (GHSA-r4mg-4433-c7g3)
+* Cross-platform convert_options support (-strip, -quality, -rotate, etc.)
 
-Please feel free to contribute Issues and pull requests.
-
----
-
-# Existing documentation
+Please check the [Image Processor](#image-processor) and [Post Processing](#post-processing) sections for more details and the [VIPS Migration Guide](https://github.com/jukra/jr-paperclip/blob/master/VIPS_MIGRATION_GUIDE.md) for migration instructions.
 
 ## Documentation valid for `master` branch
-
----
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -100,7 +97,7 @@ Requirements
 
 ### Ruby and Rails
 
-Paperclip now requires Ruby version **>= 2.3** and Rails version **>= 4.2**
+Paperclip now requires Ruby version **>= 3.0** and Rails version **>= 7.0**
 (only if you're going to use Paperclip with Ruby on Rails).
 
 ### Image Processor
@@ -214,7 +211,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "jr-paperclip", "~> 7.3"
+gem "jr-paperclip", "~> 8.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
@@ -726,6 +723,7 @@ has_attached_file :avatar, styles: { thumb: ["32x32#", :png] }
 This will convert the "thumb" style to a 32x32 square in PNG format, regardless
 of what was uploaded. If the format is not specified, it is kept the same (e.g.
 JPGs will remain JPGs). `Paperclip::Thumbnail` uses the [image_processing](https://github.com/janko/image_processing) gem to process images. This allows support for both ImageMagick (via MiniMagick) and libvips backends.
+
 [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
 has more information on the accepted style formats, which are generally supported by both backends in Paperclip.
 
@@ -737,7 +735,7 @@ has_attached_file :image, styles: { regular: ['800x800>', :png]},
     convert_options: { regular: "-posterize 3"}
 ```
 
-Paperclip delegates to the `image_processing` gem, but **whitelists supported options** for security. For ImageMagick, most standard options are supported. For libvips, a curated set of common options is available (see table below) and `Paperclip::Thumbnail` class. Unsupported options are logged as warnings and skipped.
+Paperclip delegates to the `image_processing` gem, but **whitelists supported options** for security. For ImageMagick, most standard options are supported. For libvips, a curated set of common options is available (see table below) and `Paperclip::Thumbnail` class for details. Unsupported options are logged as warnings and skipped.
 
 For full backend capabilities, refer to the image_processing documentation:
 
@@ -776,14 +774,6 @@ has_attached_file :avatar,
 
 **Note:** Some options only work with ImageMagick (e.g., `-density`, `-depth`, `-gravity`, `-crop`, `-trim`). When using the vips backend, these will be skipped with a warning logged.
 
-ImageMagick supports a number of environment variables for controlling its resource limits. For example, you can enforce memory or execution time limits by setting the following variables in your application's process environment:
-
-* `MAGICK_MEMORY_LIMIT=128MiB`
-* `MAGICK_MAP_LIMIT=64MiB`
-* `MAGICK_TIME_LIMIT=30`
-
-For a full list of variables and description, see [ImageMagick's resources documentation](http://www.imagemagick.org/script/resources.php).
-
 ---
 
 Image Processing Backends
@@ -793,16 +783,24 @@ jr-paperclip supports two image processing backends:
 
 ### ImageMagick (Default)
 
-The traditional backend, using ImageMagick via shell commands.
+The traditional backend. Paperclip uses the `image_processing` gem (via `mini_magick`) to generate shell commands for ImageMagick.
 
 ```ruby
 has_attached_file :avatar,
   styles: { thumb: "100x100#" }
 ```
 
+ImageMagick supports a number of environment variables for controlling its resource limits. For example, you can enforce memory or execution time limits by setting the following variables in your application's process environment:
+
+* `MAGICK_MEMORY_LIMIT=128MiB`
+* `MAGICK_MAP_LIMIT=64MiB`
+* `MAGICK_TIME_LIMIT=30`
+
+For a full list of variables and description, see [ImageMagick's resources documentation](http://www.imagemagick.org/script/resources.php).
+
 ### libvips (Recommended for Performance)
 
-libvips is significantly faster and uses less memory than ImageMagick.
+libvips is significantly faster and uses less memory than ImageMagick. Paperclip uses the `image_processing` gem (via `ruby-vips`) to interface with libvips.
 
 **Usage:**
 
@@ -825,6 +823,12 @@ has_attached_file :document,
     thumb: { geometry: "100x100#", backend: :image_magick }
   }
 ```
+
+libvips keeps a cache of recently executed operations. You can disable this for a drop in memory use:
+```ruby
+Vips::cache_set_max 0
+```
+**Note:** Typically this is not needed as libvips is already memory efficient. Disabling the cache is mostly useful in extremely memory-constrained environments (like AWS Lambda) where every MB counts. This [issue](https://github.com/libvips/ruby-vips/issues/225) has more information on memory usage.
 
 ---
 

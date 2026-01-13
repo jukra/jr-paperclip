@@ -1,4 +1,4 @@
-8.0.0.beta.2 (2026-01-12)
+8.0.0 (2026-01-13)
 
 * Feature: Add libvips backend alongside ImageMagick via the image_processing gem
 * Feature: Per-attachment and per-style backend selection (`:backend` option)

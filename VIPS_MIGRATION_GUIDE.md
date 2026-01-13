@@ -26,7 +26,7 @@ sudo apt install libvips-tools
 Ensure you are using the latest version of the gem:
 
 ```ruby
-gem "jr-paperclip", "~> 8.0.0.beta.2"
+gem "jr-paperclip", "~> 8.0"
 ```
 
 ## Step 2: Gradual Migration (Per-Attachment)
