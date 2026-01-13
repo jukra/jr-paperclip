@@ -14,6 +14,9 @@ brew install vips
 
 # Ubuntu/Debian
 sudo apt install libvips
+
+# If you also need the vips and vipsheader command line tools (for example custom processors)
+sudo apt install libvips-tools
 ```
 
 ## Step 1: Update your Gemfile
