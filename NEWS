@@ -1,3 +1,8 @@
+8.0.2 (2026-01-19)
+
+* Performance: Optimized image thumbnail processing pipeline to handle EXIF orientation more efficiently when using vips backend.
+* Bugix: Vips backend now uses copy_memory for operations that need random access.
+
 8.0.1 (2026-01-19)
 
 * Performance: Vips backend now uses sequential access by default for better memory efficiency.
