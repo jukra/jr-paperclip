@@ -183,6 +183,15 @@ module Paperclip
     def build_pipeline(source_path)
       pipeline = image_processing_module.source(source_path)
 
+      # Auto-orient based on EXIF data
+      if auto_orient
+        if backend == :vips
+          pipeline = pipeline.loader(autorotate: true)
+        elsif backend == :image_magick
+          pipeline = pipeline.auto_orient
+        end
+      end
+
       # For vips backend, default to sequential access for better memory efficiency.
       # Sequential access streams the image from top to bottom, keeping only a few
       # scanlines in memory. Users can override via source_file_options: { access: :random }
@@ -215,15 +224,6 @@ module Paperclip
           # Vips: load all pages
           pipeline = pipeline.loader(n: -1)
         end
-      end
-
-      # Auto-orient based on EXIF data
-      if auto_orient
-        pipeline = if backend == :vips
-                     pipeline.autorot
-                   else
-                     pipeline.auto_orient
-                   end
       end
 
       # Apply resize operation
