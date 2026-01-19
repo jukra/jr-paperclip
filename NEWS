@@ -1,3 +1,10 @@
+8.0.1 (2026-01-19)
+
+* Performance: Vips backend now uses sequential access by default for better memory efficiency.
+  Sequential access streams images from top to bottom, keeping only a few scanlines in memory
+  rather than loading the entire image. This significantly reduces memory usage for large images.
+  Users can override via source_file_options: { access: :random } if needed.
+
 8.0.0 (2026-01-13)
 
 * Feature: Add libvips backend alongside ImageMagick via the image_processing gem
