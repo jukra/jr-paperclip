@@ -183,6 +183,13 @@ module Paperclip
     def build_pipeline(source_path)
       pipeline = image_processing_module.source(source_path)
 
+      # For vips backend, default to sequential access for better memory efficiency.
+      # Sequential access streams the image from top to bottom, keeping only a few
+      # scanlines in memory. Users can override via source_file_options: { access: :random }
+      if backend == :vips
+        pipeline = pipeline.loader(access: :sequential)
+      end
+
       # Handle source file options
       if @source_file_options
         loader_options = parse_loader_options(@source_file_options)
