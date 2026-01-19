@@ -474,13 +474,15 @@ module Paperclip
         # Vips rotate via similarity for arbitrary angles
         if value
           angle = value.to_f
-          pipeline.custom { |img| img.similarity(angle: angle) }
+          # Similarity requires random access (or memory copy) for non-trivial angles
+          pipeline.custom { |img| img.copy_memory.similarity(angle: angle) }
         else
           pipeline
         end
       when "flip"
         # Vips uses flip with direction
-        pipeline.custom(&:flipver)
+        # Vertical flip requires random access (needs full image)
+        pipeline.custom { |img| img.copy_memory.flipver }
       when "flop"
         pipeline.custom(&:fliphor)
       when "blur", "gaussian_blur", "gaussblur"
@@ -511,14 +513,15 @@ module Paperclip
       when "median"
         value ? pipeline.median(value.to_i) : pipeline
       when "rot90"
-        pipeline.rot90
+        # Rotations change scanline order, requiring random access
+        pipeline.custom { |img| img.copy_memory.rot90 }
       when "rot180"
-        pipeline.rot180
+        pipeline.custom { |img| img.copy_memory.rot180 }
       when "rot270"
-        pipeline.rot270
+        pipeline.custom { |img| img.copy_memory.rot270 }
       when "similarity"
         # similarity for arbitrary rotation/scale
-        value ? pipeline.custom { |img| img.similarity(angle: value.to_f) } : pipeline
+        value ? pipeline.custom { |img| img.copy_memory.similarity(angle: value.to_f) } : pipeline
       # Edge detection filters (no arguments)
       when "canny"
         pipeline.canny

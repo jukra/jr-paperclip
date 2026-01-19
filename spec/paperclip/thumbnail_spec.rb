@@ -830,6 +830,34 @@ describe Paperclip::Thumbnail do
         end
       end
 
+      describe "-rot90" do
+        it "rotates the image 90 degrees" do
+          result = make_vips_thumb_with_options(@file, "-rot90")
+          expect(File.exist?(result.path)).to be true
+
+          dimensions = `identify -format "%wx%h" "#{result.path}"`.strip
+          # Resized to 100x15, then rotated 90 -> 15x100
+          expect(dimensions).to eq("15x100")
+        end
+      end
+
+      describe "-rot180" do
+        it "rotates the image 180 degrees" do
+          File.open(fixture_file("big_image.jpg"), "rb") do |file|
+            thumb = Paperclip::Thumbnail.new(file, {
+                                               geometry: "2000x2000",
+                                               convert_options: "-rot180",
+                                               backend: :vips,
+                                             }, attachment)
+            result = thumb.make
+            expect(File.exist?(result.path)).to be true
+
+            dimensions = `identify -format "%wx%h" "#{result.path}"`.strip
+            expect(dimensions).to eq("2000x1581")
+          end
+        end
+      end
+
       describe "-flip" do
         it "flips the image vertically" do
           result = make_vips_thumb_with_options(@file, "-flip")
