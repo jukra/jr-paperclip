@@ -1,3 +1,3 @@
 module Paperclip
-  VERSION = "8.0.2".freeze
+  VERSION = "8.0.3".freeze
 end

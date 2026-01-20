@@ -12,9 +12,14 @@ Gem::Specification.new do |s|
   s.description       = "Easy upload management for ActiveRecord"
   s.license           = "MIT"
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  gemspec = File.basename(__FILE__)
+  gemspec_dir = __dir__ || Dir.pwd
+  s.files = IO.popen(%w[git ls-files -z], chdir: gemspec_dir, err: IO::NULL) do |ls|
+    ls.readlines("\x0", chomp: true).reject do |f|
+      (f == gemspec) ||
+        f.start_with?(*%w[bin/ gemfiles/ Appraisals Gemfile .gitignore spec/ features/ .github/ .qlty/])
+    end
+  end
   s.require_paths = ["lib"]
 
   s.post_install_message = File.read("UPGRADING") if File.exist?("UPGRADING")
