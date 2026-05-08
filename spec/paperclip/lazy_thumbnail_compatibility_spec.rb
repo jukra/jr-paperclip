@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 # This spec tests compatibility with Mastodon's LazyThumbnail pattern.

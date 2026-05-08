@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Paperclip allows file attachments that are stored in the filesystem. Graphical
 # transformations are done using command line utilities (ImageMagick or libvips) and
 # are stored in Tempfiles until the record is saved. Paperclip does not require a

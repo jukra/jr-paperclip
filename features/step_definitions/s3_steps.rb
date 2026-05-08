@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
   # Stub S3 PUT requests for any region and track them
   stub_request(:put, %r{https://paperclip\.s3\.[a-z0-9-]+\.amazonaws\.com/.*})
