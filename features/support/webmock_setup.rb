@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "webmock/cucumber"
 
 # Allow AWS EC2 instance metadata service (used by AWS SDK for credential detection)
