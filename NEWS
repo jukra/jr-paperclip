@@ -1,3 +1,8 @@
+8.0.5 (2026-05-21)
+
+* Improvement: Avoid anonymous evals
+* Chore: Remove legacy Ruby and Rails compatibility branches
+
 8.0.4 (2026-05-08)
 
 * Improvement: Add frozen string literal comments and update mutable string builders for frozen string compatibility.
