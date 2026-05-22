@@ -1,3 +1,10 @@
+8.0.6 (unreleased)
+
+* Chore: Update image_processing runtime dependency to ~> 2.0
+* Chore: Add explicit mini_magick and ruby-vips runtime dependencies now that image_processing treats them as soft dependencies
+* Security: Pick up image_processing 2.0.1 loader/saver option hardening
+* Behavior: Vips backend now follows image_processing 2.x defaults, including blocked unfuzzed loaders and no post-resize sharpening by default
+
 8.0.5 (2026-05-21)
 
 * Improvement: Avoid anonymous evals

@@ -295,13 +295,17 @@ describe Paperclip::Thumbnail do
           expect(`identify -format "%wx%h" "#{result.path}"`.chomp).to eq("434x66")
         end
 
-        it "takes only the first frame of a PDF by default" do
-          pdf_file = File.new(fixture_file("twopage.pdf"), "rb")
-          processor = described_class.new(pdf_file, { geometry: "100x100", format: :png, backend: :vips }, attachment)
-          result = processor.make
+        it "rejects PDFs by default when libvips blocks untrusted loaders" do
+          skip "VIPS_BLOCK_UNTRUSTED is set" if ENV["VIPS_BLOCK_UNTRUSTED"]
+          skip "Vips.block_untrusted is not available" unless Vips.respond_to?(:block_untrusted)
 
-          cmd = %[identify -format "%n" "#{result.path}"]
-          expect(`#{cmd}`.chomp).to eq("1")
+          pdf_file = File.new(fixture_file("twopage.pdf"), "rb")
+
+          expect do
+            described_class.new(pdf_file, { geometry: "100x100", format: :png, backend: :vips }, attachment)
+          end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError)
+        ensure
+          pdf_file&.close
         end
 
         it "detects animated source correctly" do
@@ -1186,6 +1190,16 @@ describe Paperclip::Thumbnail do
           allow(thumb).to receive(:build_pipeline).and_raise(ImageProcessing::Error.new("Processing failed"))
 
           expect { thumb.make }.to raise_error(Paperclip::Error, /Processing failed/)
+        end
+
+        it "raises CommandNotFoundError when image_processing reports a missing backend dependency" do
+          thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
+          error = ImageProcessing::Error.new(
+            'ImageProcessing::MiniMagick requires the mini_magick gem. Please add `gem "mini_magick"` to your Gemfile.',
+          )
+          allow(thumb).to receive(:build_pipeline).and_raise(error)
+
+          expect { thumb.make }.to raise_error(Paperclip::Errors::CommandNotFoundError, /Please install dependencies/)
         end
       end
 

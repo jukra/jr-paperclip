@@ -90,6 +90,23 @@ module Paperclip
     backend
   end
 
+  def self.require_vips
+    return if @vips_loaded
+
+    require "vips"
+    block_untrusted_vips_loaders
+    @vips_loaded = true
+  rescue LoadError
+    raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips.")
+  end
+
+  def self.block_untrusted_vips_loaders
+    return if ENV["VIPS_BLOCK_UNTRUSTED"]
+    return unless defined?(::Vips) && ::Vips.respond_to?(:block_untrusted)
+
+    ::Vips.block_untrusted(true)
+  end
+
   # Provides configurability to Paperclip. The options available are:
   # * whiny: Will raise an error if Paperclip cannot process thumbnails of
   #   an uploaded image. Defaults to true.

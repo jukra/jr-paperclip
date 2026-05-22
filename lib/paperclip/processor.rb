@@ -79,11 +79,7 @@ module Paperclip
     # @param options [Hash] Options to pass to Vips::Image.new_from_file
     # @return [Vips::Image] The loaded image
     def vips_image(file_path, **options)
-      begin
-        require "vips"
-      rescue LoadError
-        raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips.")
-      end
+      Paperclip.require_vips
       Vips::Image.new_from_file(file_path, **options)
     end
   end

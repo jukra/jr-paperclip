@@ -21,7 +21,7 @@ sudo apt install libvips-tools
 
 ## Step 1: Update your Gemfile
 
-`jr-paperclip` already includes the `image_processing` gem, which automatically provides the `ruby-vips` and `mini_magick` bindings. You do **not** need to add these gems explicitly to your `Gemfile`.
+`jr-paperclip` depends on the `image_processing`, `ruby-vips`, and `mini_magick` gems directly. You do **not** need to add these gems explicitly to your `Gemfile` unless your application wants to override their version constraints.
 
 Ensure you are using the latest version of the gem:
 
@@ -134,6 +134,6 @@ has_attached_file :document,
 
 ## Important Considerations
 
-1.  **Output Parity**: While libvips aims for high quality, its resizing algorithms (Lanczos) may produce slightly different visual results than ImageMagick.
-2.  **PDF/SVG Support**: libvips requires additional libraries (like `poppler` or `librsvg`) to process these formats. If you process complex vector formats, ensure the appropriate libraries are installed on your system.
+1.  **Output Parity**: While libvips aims for high quality, its resizing algorithms (Lanczos) may produce slightly different visual results than ImageMagick. `image_processing` 2.x also no longer applies post-resize sharpening by default.
+2.  **PDF/SVG Support**: libvips requires additional libraries (like `poppler` or `librsvg`) to process these formats. With `image_processing` 2.x, operations and loaders marked as untrusted may be blocked by default, and the exact affected formats vary by libvips build and version. Use ImageMagick for blocked formats or set `VIPS_BLOCK_UNTRUSTED=0` only for trusted inputs.
 3.  **Exotic Formats**: If you rely on very specific ImageMagick features (like specialized filters or complex layer manipulation), test those attachments thoroughly before switching.

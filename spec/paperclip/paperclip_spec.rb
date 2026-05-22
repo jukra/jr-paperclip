@@ -3,6 +3,34 @@
 require "spec_helper"
 
 describe Paperclip do
+  context ".require_vips" do
+    before do
+      @original_vips_loaded = Paperclip.instance_variable_get(:@vips_loaded)
+      @had_vips_loaded = Paperclip.instance_variable_defined?(:@vips_loaded)
+      Paperclip.remove_instance_variable(:@vips_loaded) if @had_vips_loaded
+    end
+
+    after do
+      Paperclip.remove_instance_variable(:@vips_loaded) if Paperclip.instance_variable_defined?(:@vips_loaded)
+      Paperclip.instance_variable_set(:@vips_loaded, @original_vips_loaded) if @had_vips_loaded
+    end
+
+    it "loads vips and blocks untrusted loaders once" do
+      expect(Paperclip).to receive(:require).with("vips").once
+      expect(Paperclip).to receive(:block_untrusted_vips_loaders).once
+
+      2.times { Paperclip.require_vips }
+    end
+
+    it "raises CommandNotFoundError when vips cannot be loaded" do
+      allow(Paperclip).to receive(:require).with("vips").and_raise(LoadError)
+
+      expect {
+        Paperclip.require_vips
+      }.to raise_error(Paperclip::Errors::CommandNotFoundError, /Could not load ruby-vips/)
+    end
+  end
+
   context ".run" do
     before do
       Paperclip.options[:log_command] = false

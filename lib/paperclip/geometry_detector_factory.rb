@@ -47,11 +47,7 @@ module Paperclip
     end
 
     def vips_geometry_string
-      begin
-        require "vips"
-      rescue LoadError => e
-        raise Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips.")
-      end
+      Paperclip.require_vips
 
       begin
         # Use ruby-vips gem directly instead of shelling out to vipsheader
