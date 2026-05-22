@@ -83,7 +83,9 @@ describe Paperclip::GeometryDetector do
       if backend == :vips
         it "raises CommandNotFoundError (and not NameError) when vips is missing" do
           hide_const("Vips")
-          allow_any_instance_of(Paperclip::GeometryDetector).to receive(:require).with("vips").and_raise(LoadError)
+          allow(Paperclip).to receive(:require_vips).and_raise(
+            Paperclip::Errors::CommandNotFoundError.new("Could not load ruby-vips. Please install libvips.")
+          )
 
           file = fixture_file("5k.png")
           factory = Paperclip::GeometryDetector.new(file)

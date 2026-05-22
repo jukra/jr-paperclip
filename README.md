@@ -103,6 +103,7 @@ Paperclip now requires Ruby version **>= 3.0** and Rails version **>= 7.0**
 ### Image Processor
 
 Paperclip supports two main image processing backends: **ImageMagick** (default) and **libvips** (recommended for performance).
+`jr-paperclip` depends on the `image_processing`, `mini_magick`, and `ruby-vips` gems directly, so applications normally only need to install the system image library for the backend they use.
 
 #### ImageMagick
 
@@ -162,6 +163,8 @@ config.paperclip_defaults = {
 You can also specify the backend per-attachment (see [Image Processing Backends](#image-processing-backends)).
 
 **Note on Geometry Detection:** When `vips` is the active backend, Paperclip uses the ruby-vips gem to determine image dimensions instead of ImageMagick's `identify` command.
+
+**Note on Untrusted Loaders:** `image_processing` 2.x asks libvips to block operations and loaders marked as untrusted by default. The affected formats depend on the libvips version and enabled loader libraries in your build. If formats such as PDF, SVG, JPEG-XL, RAW, OpenSlide, NIFTI, FITS, MATLAB, or Analyze6 are rejected, use the ImageMagick backend for those inputs, or set `VIPS_BLOCK_UNTRUSTED=0` before loading `image_processing/vips` only for trusted inputs.
 
 ### `file`
 
@@ -801,6 +804,7 @@ For a full list of variables and description, see [ImageMagick's resources docum
 ### libvips (Recommended for Performance)
 
 libvips is significantly faster and uses less memory than ImageMagick. Paperclip uses the `image_processing` gem (via `ruby-vips`) to interface with libvips.
+With `image_processing` 2.x, libvips blocks operations and loaders marked as untrusted by default; the exact affected formats vary by libvips build and version.
 
 **Usage:**
 

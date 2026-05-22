@@ -148,6 +148,11 @@ module Paperclip
         elsif defined?(::MiniMagick::Error) && (e.is_a?(::MiniMagick::Error) || e.is_a?(::MiniMagick::Invalid))
           handle_error(e, "ImageMagick")
         elsif defined?(::ImageProcessing::Error) && e.is_a?(::ImageProcessing::Error)
+          if backend_dependency_error?(e)
+            raise Paperclip::Errors::CommandNotFoundError.new(
+              "Could not run the command for #{backend}. Please install dependencies.",
+            )
+          end
           handle_error(e, "ImageProcessing")
         else
           raise e
@@ -665,6 +670,10 @@ module Paperclip
         Paperclip.log("Processing failed: #{error.message}")
         @file
       end
+    end
+
+    def backend_dependency_error?(error)
+      error.message.match?(/ImageProcessing::(?:MiniMagick|Vips) requires/)
     end
   end
 end
