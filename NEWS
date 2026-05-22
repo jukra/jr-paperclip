@@ -1,4 +1,4 @@
-8.0.6 (unreleased)
+8.0.6 (2026-05-22)
 
 * Chore: Update image_processing runtime dependency to ~> 2.0
 * Chore: Add explicit mini_magick and ruby-vips runtime dependencies now that image_processing treats them as soft dependencies
