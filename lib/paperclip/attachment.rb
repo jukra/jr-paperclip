@@ -36,8 +36,7 @@ module Paperclip
         validate_media_type:               true,
         adapter_options:                   { hash_digest: Digest::MD5 },
         check_validity_before_processing:  true,
-        return_file_attributes_on_destroy: false,
-        backend:                           Paperclip.options[:backend]
+        return_file_attributes_on_destroy: false
       }
     end
 

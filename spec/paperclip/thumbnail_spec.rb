@@ -24,6 +24,18 @@ describe Paperclip::Thumbnail do
         expect(processor.backend).to eq(:image_magick)
       end
 
+      it "honors a global backend set after Attachment.default_options has been memoized" do
+        Paperclip::Attachment.default_options
+        original_backend = Paperclip.options[:backend]
+        Paperclip.options[:backend] = :vips
+
+        real_attachment = Paperclip::Attachment.new(:avatar, FakeModel.new)
+        processor = described_class.new(@file, { geometry: "25x25" }, real_attachment)
+        expect(processor.backend).to eq(:vips)
+      ensure
+        Paperclip.options[:backend] = original_backend
+      end
+
       it "defaults to image_magick when backend is nil" do
         original_backend = Paperclip.options[:backend]
         Paperclip.options[:backend] = nil
