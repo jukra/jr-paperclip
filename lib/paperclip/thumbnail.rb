@@ -641,12 +641,16 @@ module Paperclip
     end
 
     def animated_source?
-      @animated_source ||= begin
+      return @animated_source if defined?(@animated_source)
+
+      @animated_source = begin
         case backend
         when :vips
-          vips_image(File.expand_path(@file.path)).get("n-pages").to_i > 1
+          vips_image(File.expand_path(@file.path), access: :sequential).get("n-pages").to_i > 1
         when :image_magick
-          identify("-format %n :file", file: File.expand_path(@file.path)).to_i > 1
+          # Limit identify to the first two frames: counting all frames with
+          # %n decodes the entire file, which is expensive for large animations.
+          identify("-format %n :file", file: "#{File.expand_path(@file.path)}[0-1]").to_i > 1
         else
           extension_indicates_animation?
         end

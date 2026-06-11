@@ -55,6 +55,14 @@ describe Paperclip::Thumbnail do
       end
     end
 
+    describe "animation detection" do
+      it "probes a non-animated source only once even though the result is false" do
+        thumb = described_class.new(@file, geometry: "50x50")
+        expect(thumb).to receive(:identify).once.and_call_original
+        3.times { expect(thumb.send(:animated_source?)).to be false }
+      end
+    end
+
     describe "per-style backend selection (integration)" do
       let(:attachment) { double("Attachment", options: {}) }
 
@@ -1441,6 +1449,12 @@ describe Paperclip::Thumbnail do
         # We want exactly 50x50
         assert_equal "50x50", output
       end
+    end
+
+    it "probes the source for animation only once" do
+      thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
+      expect(thumb).to receive(:identify).once.and_call_original
+      3.times { expect(thumb.send(:animated_source?)).to be true }
     end
 
     context "with a specified frame_index" do
