@@ -24,6 +24,18 @@ describe Paperclip::Thumbnail do
         expect(processor.backend).to eq(:image_magick)
       end
 
+      it "honors a global backend set after Attachment.default_options has been memoized" do
+        Paperclip::Attachment.default_options
+        original_backend = Paperclip.options[:backend]
+        Paperclip.options[:backend] = :vips
+
+        real_attachment = Paperclip::Attachment.new(:avatar, FakeModel.new)
+        processor = described_class.new(@file, { geometry: "25x25" }, real_attachment)
+        expect(processor.backend).to eq(:vips)
+      ensure
+        Paperclip.options[:backend] = original_backend
+      end
+
       it "defaults to image_magick when backend is nil" do
         original_backend = Paperclip.options[:backend]
         Paperclip.options[:backend] = nil
@@ -52,6 +64,14 @@ describe Paperclip::Thumbnail do
         attachment_with_backend = double("Attachment", options: { backend: :vips })
         processor = described_class.new(@file, { geometry: "25x25", backend: :image_magick }, attachment_with_backend)
         expect(processor.backend).to eq(:image_magick)
+      end
+    end
+
+    describe "animation detection" do
+      it "probes a non-animated source only once even though the result is false" do
+        thumb = described_class.new(@file, geometry: "50x50")
+        expect(thumb).to receive(:identify).once.and_call_original
+        3.times { expect(thumb.send(:animated_source?)).to be false }
       end
     end
 
@@ -1441,6 +1461,12 @@ describe Paperclip::Thumbnail do
         # We want exactly 50x50
         assert_equal "50x50", output
       end
+    end
+
+    it "probes the source for animation only once" do
+      thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
+      expect(thumb).to receive(:identify).once.and_call_original
+      3.times { expect(thumb.send(:animated_source?)).to be true }
     end
 
     context "with a specified frame_index" do

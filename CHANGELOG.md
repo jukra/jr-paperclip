@@ -1,3 +1,9 @@
+8.0.7 (2026-06-11)
+
+* Performance: Fix repeated animation probing in Thumbnail.
+* Bugfix: The global backend (Paperclip.options[:backend]) is now read at processing time instead of
+  being captured into Attachment.default_options when that hash is first built.
+
 8.0.6 (2026-05-22)
 
 * Chore: Update image_processing runtime dependency to ~> 2.0
