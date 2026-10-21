@@ -190,21 +190,7 @@ module Paperclip
     def build_pipeline(source_path)
       pipeline = image_processing_module.source(source_path)
 
-      # Auto-orient based on EXIF data
-      if auto_orient
-        if backend == :vips
-          pipeline = pipeline.loader(autorotate: true)
-        elsif backend == :image_magick
-          pipeline = pipeline.auto_orient
-        end
-      end
-
-      # For vips backend, default to sequential access for better memory efficiency.
-      # Sequential access streams the image from top to bottom, keeping only a few
-      # scanlines in memory. Users can override via source_file_options: { access: :random }
-      if backend == :vips
-        pipeline = pipeline.loader(access: :sequential)
-      end
+      pipeline = pipeline.loader(auto_orient: auto_orient) if backend == :image_magick
 
       # Handle source file options
       if @source_file_options
@@ -236,6 +222,18 @@ module Paperclip
       # Apply resize operation
       if target_geometry
         pipeline = apply_resize(pipeline)
+      end
+
+      if backend == :vips
+        # An empty loader lets image_processing use file thumbnailing, which shrinks
+        # before autorotating and uses sequential decoding internally. Keep explicit
+        # loaders and frame selection unchanged.
+        resize_on_load = pipeline.options[:operations].dig(0, 0).to_s.start_with?("resize_")
+        unless auto_orient && resize_on_load && pipeline.options[:loader].empty?
+          defaults = { access: :sequential }
+          defaults.merge!(auto_orient ? { autorotate: true } : { autorot: false })
+          pipeline = pipeline.loader(**defaults.merge(pipeline.options[:loader]))
+        end
       end
 
       # Handle animated images (GIF, WebP)

@@ -1,3 +1,11 @@
+8.0.8 (2026-10-21)
+
+* Performance: Let eligible vips resizes use native file thumbnailing instead of loading and
+  autorotating the full-resolution image first. Explicit source loader options and frame selection
+  still take precedence. Native thumbnailing can change resampling and output dimension rounding;
+  requested geometry and encoder settings are unchanged. Explicit sequential access retains the old path.
+* Bugfix: Honor auto_orient: false with vips, including image_processing's fallback autorotation.
+
 8.0.7 (2026-06-11)
 
 * Performance: Fix repeated animation probing in Thumbnail.
