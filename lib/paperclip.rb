@@ -69,6 +69,7 @@ end
 require "marcel"
 require "logger"
 require "terrapin"
+require "paperclip/image_magick_policy"
 
 require "paperclip/railtie" if defined?(Rails::Railtie)
 

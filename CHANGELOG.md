@@ -1,3 +1,12 @@
+8.0.9 (2026-11-04)
+
+* Security: Apply a bundled ImageMagick policy to direct `identify` calls and MiniMagick thumbnailing,
+  blocking MSL, indirect file and network coders, and Ghostscript by default. Adapted from
+  rails/rails@468aa9a93fc98f5476b6821770f4ccfcb7f7d328 (GHSA-f3w6-w445-fwh9).
+* Behavior: PDF and PostScript thumbnailing is blocked by default. MiniMagick 5.1 or newer is required;
+  GraphicsMagick and MiniMagick CLI prefixes are rejected because they bypass the policy. The
+  policy also applies to direct MiniMagick commands in the same Ruby process once thumbnailing starts.
+
 8.0.8 (2026-10-21)
 
 * Performance: Let eligible vips resizes use native file thumbnailing instead of loading and

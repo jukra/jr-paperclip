@@ -15,14 +15,18 @@ describe Paperclip::Processor do
       Paperclip.options[:log_command] = false
       allow(Paperclip).to receive(:imagemagick7?).and_return(false)
       Paperclip.options[:is_windows] = false
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", {}).and_return(double(run: nil))
+      expect(Terrapin::CommandLine).to receive(:new).with(
+        "convert", "stuff", hash_including(environment: hash_including("MAGICK_CONFIGURE_PATH" => include(Paperclip::ImageMagickPolicy::POLICY_DIRECTORY)))
+      ).and_return(double(run: nil))
       Paperclip::Processor.new("filename").convert("stuff")
     end
 
     it "runs the magick convert command when ImageMagick 7 is present" do
       Paperclip.options[:log_command] = false
       allow(Paperclip).to receive(:imagemagick7?).and_return(true)
-      expect(Terrapin::CommandLine).to receive(:new).with("magick", "stuff", {}).and_return(double(run: nil))
+      expect(Terrapin::CommandLine).to receive(:new).with(
+        "magick", "stuff", hash_including(environment: hash_including("MAGICK_CONFIGURE_PATH" => include(Paperclip::ImageMagickPolicy::POLICY_DIRECTORY)))
+      ).and_return(double(run: nil))
       Paperclip::Processor.new("filename").convert("stuff")
     end
   end
@@ -32,14 +36,18 @@ describe Paperclip::Processor do
       Paperclip.options[:log_command] = false
       allow(Paperclip).to receive(:imagemagick7?).and_return(false)
       Paperclip.options[:is_windows] = false
-      expect(Terrapin::CommandLine).to receive(:new).with("identify", "stuff", {}).and_return(double(run: nil))
+      expect(Terrapin::CommandLine).to receive(:new).with(
+        "identify", "stuff", hash_including(environment: hash_including("MAGICK_CONFIGURE_PATH" => include(Paperclip::ImageMagickPolicy::POLICY_DIRECTORY)))
+      ).and_return(double(run: nil))
       Paperclip::Processor.new("filename").identify("stuff")
     end
 
     it "runs the magick identify command when ImageMagick 7 is present" do
       Paperclip.options[:log_command] = false
       allow(Paperclip).to receive(:imagemagick7?).and_return(true)
-      expect(Terrapin::CommandLine).to receive(:new).with("magick identify", "stuff", {}).and_return(double(run: nil))
+      expect(Terrapin::CommandLine).to receive(:new).with(
+        "magick identify", "stuff", hash_including(environment: hash_including("MAGICK_CONFIGURE_PATH" => include(Paperclip::ImageMagickPolicy::POLICY_DIRECTORY)))
+      ).and_return(double(run: nil))
       Paperclip::Processor.new("filename").identify("stuff")
     end
   end

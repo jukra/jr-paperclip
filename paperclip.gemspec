@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
         f.start_with?(*%w[bin/ gemfiles/ Appraisals Gemfile .gitignore spec/ features/ .github/ .qlty/])
     end
   end
+  s.files |= %w[lib/paperclip/image_magick_policy.rb lib/paperclip/image_magick/policy.xml]
   s.require_paths = ["lib"]
 
   s.post_install_message = File.read("UPGRADING") if File.exist?("UPGRADING")
@@ -34,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_dependency("image_processing", "~> 2.0")
   s.add_dependency("marcel", ">= 1.0.1")
   s.add_dependency("mime-types")
-  s.add_dependency("mini_magick", ">= 4.9.5", "< 6")
+  s.add_dependency("mini_magick", ">= 5.1", "< 6")
   s.add_dependency("ruby-vips", ">= 2.0.17", "< 3")
   s.add_dependency("terrapin", ">= 0.6.0", "< 2.0")
 

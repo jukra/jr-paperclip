@@ -1320,29 +1320,10 @@ describe Paperclip::Thumbnail do
 
     after { @file.close }
 
-    it "starts with two pages with dimensions 612x792" do
-      cmd = %[identify -format "%wx%h" "#{@file.path}"]
-      assert_equal "612x792" * 2, `#{cmd}`.chomp
-    end
-
-    context "being thumbnailed at 100x100 with cropping" do
-      before do
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "100x100#", format: :png)
-      end
-
-      it "reports its correct current and target geometries" do
-        assert_equal "100x100#", @thumb.target_geometry.to_s
-        assert_equal "612x792", @thumb.current_geometry.to_s
-      end
-
-      it "reports its correct format" do
-        assert_equal :png, @thumb.format
-      end
-
-      it "creates the thumbnail when sent #make" do
-        dst = @thumb.make
-        assert_match /100x100/, `identify "#{dst.path}"`
-      end
+    it "does not process PDFs under the bundled ImageMagick policy" do
+      expect do
+        Paperclip::Thumbnail.new(@file, geometry: "100x100#", format: :png)
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByBackendError)
     end
   end
 

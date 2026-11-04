@@ -31,6 +31,11 @@ module Paperclip
       command_path = options[:command_path]
       terrapin_path_array = Terrapin::CommandLine.path.try(:split, Terrapin::OS.path_separator)
       Terrapin::CommandLine.path = [terrapin_path_array, command_path].flatten.compact.uniq
+      local_options = local_options.merge(
+        environment: Paperclip::ImageMagickPolicy.command_environment(
+          local_options[:environment] || {}, Terrapin::CommandLine.environment["MAGICK_CONFIGURE_PATH"],
+        ),
+      )
       if logging? && (options[:log_command] || local_options[:log_command])
         local_options = local_options.merge(logger: logger)
       end
