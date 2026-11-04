@@ -1,0 +1,55 @@
+<!--
+  Paperclip's ImageMagick security policy, adapted from the Active Storage policy in
+  Rails commit 468aa9a93fc98f5476b6821770f4ccfcb7f7d328 (MIT license):
+  https://github.com/rails/rails/commit/468aa9a93fc98f5476b6821770f4ccfcb7f7d328
+
+  ImageMagick 6 and 7 both honor the coder, delegate, and path domains. Each
+  Ghostscript coder alias must be denied separately. Avoid backticks in this file:
+  ImageMagick's tokenizer can silently discard rules after one.
+-->
+<policymap>
+  <!-- Scripting coder that reads and writes files named inside the image. -->
+  <policy domain="coder" rights="none" pattern="MSL"/>
+
+  <!-- Coders that read or delete files other than the image being processed. -->
+  <policy domain="coder" rights="none" pattern="EPHEMERAL"/>
+  <policy domain="coder" rights="none" pattern="TEXT"/>
+  <policy domain="coder" rights="none" pattern="MPC"/>
+
+  <!-- Coders that display to a screen. -->
+  <policy domain="coder" rights="none" pattern="SHOW"/>
+  <policy domain="coder" rights="none" pattern="WIN"/>
+  <policy domain="coder" rights="none" pattern="PLT"/>
+
+  <!-- Coders that read remote or local references. -->
+  <policy domain="coder" rights="none" pattern="URL"/>
+  <policy domain="coder" rights="none" pattern="HTTP"/>
+  <policy domain="coder" rights="none" pattern="HTTPS"/>
+  <policy domain="coder" rights="none" pattern="FTP"/>
+  <policy domain="coder" rights="none" pattern="FILE"/>
+
+  <!-- Ghostscript and all of its coder aliases. -->
+  <policy domain="delegate" rights="none" pattern="gs"/>
+  <policy domain="coder" rights="none" pattern="PS"/>
+  <policy domain="coder" rights="none" pattern="PS2"/>
+  <policy domain="coder" rights="none" pattern="PS3"/>
+  <policy domain="coder" rights="none" pattern="EPS"/>
+  <policy domain="coder" rights="none" pattern="EPS2"/>
+  <policy domain="coder" rights="none" pattern="EPS3"/>
+  <policy domain="coder" rights="none" pattern="EPI"/>
+  <policy domain="coder" rights="none" pattern="EPSF"/>
+  <policy domain="coder" rights="none" pattern="EPSI"/>
+  <policy domain="coder" rights="none" pattern="EPT"/>
+  <policy domain="coder" rights="none" pattern="EPT2"/>
+  <policy domain="coder" rights="none" pattern="EPT3"/>
+  <policy domain="coder" rights="none" pattern="PDF"/>
+  <policy domain="coder" rights="none" pattern="AI"/>
+  <policy domain="coder" rights="none" pattern="EPDF"/>
+  <policy domain="coder" rights="none" pattern="PDFA"/>
+  <policy domain="coder" rights="none" pattern="POCKETMOD"/>
+  <policy domain="coder" rights="none" pattern="XPS"/>
+  <policy domain="coder" rights="none" pattern="PCL"/>
+
+  <!-- Indirect reads such as text:@/etc/passwd. -->
+  <policy domain="path" rights="none" pattern="@*"/>
+</policymap>

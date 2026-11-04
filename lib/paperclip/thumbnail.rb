@@ -268,6 +268,7 @@ module Paperclip
       else
         # :image_magick or any other value defaults to ImageMagick
         require "image_processing/mini_magick"
+        Paperclip::ImageMagickPolicy.apply_to_mini_magick!
         ImageProcessing::MiniMagick
       end
     end

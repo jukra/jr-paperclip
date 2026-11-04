@@ -125,10 +125,16 @@ If you're on Mac OS X, you'll want to run the following with [Homebrew](http://w
 
     brew install imagemagick
 
-If you are dealing with pdf uploads or running the test suite, you'll also need
-to install GhostScript. On Mac OS X, you can also install that using Homebrew:
+PDF uploads do not require Ghostscript, but rendering PDF thumbnails with
+ImageMagick does. Paperclip's bundled security policy blocks PDF and Ghostscript
+processing by default. If your application must render PDFs from trusted sources,
+review the policy and explicitly allow the required coders and delegate in your
+host's ImageMagick policy. On Mac OS X, Ghostscript can be installed with:
 
     brew install gs
+
+Paperclip requires MiniMagick to use ImageMagick without a CLI prefix for this
+policy to protect thumbnails. GraphicsMagick and CLI prefixes are rejected.
 
 If you are on Ubuntu (or any Debian base Linux distribution), you'll want to run
 the following with apt-get:
@@ -164,7 +170,7 @@ You can also specify the backend per-attachment (see [Image Processing Backends]
 
 **Note on Geometry Detection:** When `vips` is the active backend, Paperclip uses the ruby-vips gem to determine image dimensions instead of ImageMagick's `identify` command.
 
-**Note on Untrusted Loaders:** `image_processing` 2.x asks libvips to block operations and loaders marked as untrusted by default. The affected formats depend on the libvips version and enabled loader libraries in your build. If formats such as PDF, SVG, JPEG-XL, RAW, OpenSlide, NIFTI, FITS, MATLAB, or Analyze6 are rejected, use the ImageMagick backend for those inputs, or set `VIPS_BLOCK_UNTRUSTED=0` before loading `image_processing/vips` only for trusted inputs.
+**Note on Untrusted Loaders:** `image_processing` 2.x asks libvips to block operations and loaders marked as untrusted by default. The affected formats depend on the libvips version and enabled loader libraries in your build. If formats such as PDF, SVG, JPEG-XL, RAW, OpenSlide, NIFTI, FITS, MATLAB, or Analyze6 are rejected, use the ImageMagick backend only if its security policy permits the format, or set `VIPS_BLOCK_UNTRUSTED=0` before loading `image_processing/vips` only for trusted inputs.
 
 ### `file`
 
@@ -787,6 +793,18 @@ jr-paperclip supports two image processing backends:
 ### ImageMagick (Default)
 
 The traditional backend. Paperclip uses the `image_processing` gem (via `mini_magick`) to generate shell commands for ImageMagick.
+
+Paperclip bundles an ImageMagick security policy based on [Rails commit
+468aa9a](https://github.com/rails/rails/commit/468aa9a93fc98f5476b6821770f4ccfcb7f7d328)
+for [GHSA-f3w6-w445-fwh9](https://github.com/rails/rails/security/advisories/GHSA-f3w6-w445-fwh9).
+It applies to both direct `identify` calls and MiniMagick thumbnail conversion.
+The policy blocks scripting and indirect file/network coders, including MSL,
+and blocks PDF, PostScript, and Ghostscript processing by default. Paperclip
+sets `MiniMagick.cli_env` process-wide when it starts an ImageMagick thumbnail,
+so direct MiniMagick commands in the same Ruby process also inherit the policy. Run
+trusted PDF or PostScript rendering in a separate process with its own policy,
+or explicitly allow the needed coders and delegate in a host policy. A host
+allow also applies to untrusted Paperclip uploads in that process.
 
 ```ruby
 has_attached_file :avatar,
